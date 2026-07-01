@@ -27,7 +27,7 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.memory import MemoryStorage
 
 # ===================== КОНФИГУРАЦИЯ =====================
-API_TOKEN = "8861210799:AAEGBNMtbNeL2wiukBpDmI58RBoVehBfn3o"
+API_TOKEN = "8866631446:AAG5FN7FgJ_OSOfcuf3ucg3Nbsl0T5vY5as"
 CHANNEL_ID = "VO1D_NET"
 
 logging.basicConfig(
