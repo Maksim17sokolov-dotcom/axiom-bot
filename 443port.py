@@ -1547,13 +1547,13 @@ class AxiomStrikeBot:
         )
         await callback.message.answer("Выберите действие:", reply_markup=self.main_keyboard())
 
-    async def handle_main_menu(self, message: types.Message):
+    async def handle_main_menu(self, message: types.Message, state: FSMContext):
         if message.text == "📱 БОМБЕР":
             await message.answer("📱 **МЕНЮ БОМБЕРА**\nВыберите тип атаки:", reply_markup=self.bomber_keyboard())
         elif message.text == "💣 DDOS АТАКА":
             await message.answer("💣 **МЕНЮ DDOS**\nВыберите метод атаки:", reply_markup=self.ddos_keyboard())
         elif message.text == "💀 СНОС АККАУНТА":
-            await self.handle_destroy_account(message)
+            await self.handle_destroy_account(message, state)
         elif message.text == "📊 СТАТИСТИКА":
             await self.handle_stats(message)
         elif message.text == "⚙️ НАСТРОЙКИ":
