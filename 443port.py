@@ -196,7 +196,6 @@ class CallBomber:
         return {'total': total, 'success': success}
 
 
-# ===================== TELEGRAM БОМБЕР (ИСПРАВЛЕННЫЙ) =====================
 class TelegramBomber:
     def __init__(self, bot_token: str):
         self.bot_token = bot_token
@@ -211,96 +210,118 @@ class TelegramBomber:
             '7999194366:AAFY5oVfSXd3Sj2ZKL5n_E4gmQgfludEFg8',
             '7911356716:AAFWpCgqU-h8il7N_nT_2scoHPB7ZFWMFuk',
             '8342182947:AAHt19nmDY9vAF9YXMd-TPL68Ln-U_ps8us',
-            '8765644248:AAHPPa0-hiifK_Csi3fsDJiNn_jJgbG1N68',
-            '8736513089:AAE-8zAr1Hk4UMaFgJnSs5VQ9JKH2Xip4c8',
-            '8594237152:AAHSAgDQ87Fmrp5eC-f7cuXaRrvRDovIlfM',
-            '8561372759:AAFS4v6K4e8R_uMSfzsuLItRVMr-EDhCnSA',
-            '8761449080:AAHB2-AjbjsVVKTYAT5NSWtEjkoJs_XuSBU',
-            '8865408617:AAEoXfGBKajejCb4gBc_-1Q8O60H6SjR-Zc',
-            '8562700975:AAGZ9yOFw_jwK1QJT_8lfHnakPA0EPgRhoM',
-            '8178054852:AAHWsqTySVOT29RekDIwqqBfcOEEYJvj9Lw',
-            '8769377277:AAHps2McG_eyhMWq63yJY5be0fZbMOQ-Dgc',
-            '8838855987:AAHrVoDgT2luzbPjDoM10c-DHisYVEul1ik',
         ]
         
+        # Разные сообщения чтобы не банили
         self.messages = [
-            "⚠️ Ваш аккаунт взломан! Смените пароль!",
-            "🔐 Кто-то пытается войти в ваш аккаунт!",
-            "💰 Заработок от 50 000 руб в день!",
-            "🎉 Вы выиграли iPhone 15! Заберите приз!",
-            "🚨 Срочно! Ваш аккаунт блокируется!",
-            "💳 Карта заблокирована! Свяжитесь с банком!",
-            "🏦 Подозрительный перевод на крупную сумму!",
-            "📱 Вход с нового устройства! Если не вы - смените пароль!",
-            "💀 Ваши данные проданы в даркнете!",
-            "🔥 Критическое уведомление безопасности!",
-            "🔑 Код подтверждения: " + str(random.randint(100000, 999999)),
-            "⚠️ Ваш аккаунт будет удалён через 24 часа!",
-            "💰 Бесплатные деньги! Перейдите по ссылке!",
-            "🎁 Ваш подарок ждёт! Получите сейчас!",
-            "💼 Работа на дому от 100 000 руб/мес!",
-            "₿ Биткоин вырастет до 1 000 000$! Инвестируйте!",
-            "📦 Ваша посылка ожидает! Подтвердите адрес!",
-            "🚕 Такси ждёт вас! Подтвердите заказ!",
-            "🛡️ Обнаружена утечка данных! Смените пароль!",
-            "💊 Лекарства со скидкой 70%! Только сегодня!",
-            "📢 Срочное уведомление от администрации!",
-            "🔔 Внимание! Проверьте свои данные!",
-            "📩 Важное сообщение от поддержки!",
-            "🏆 Поздравляем! Вы выиграли 1 000 000 руб!",
-            "🌟 Специальное предложение только для вас!",
-            "💵 Ваш кэшбек 30% на все покупки!",
-            "📱 Ваш телефон взломали! Проверьте безопасность!",
-            "⚠️ Кто-то использует ваш номер для спама!",
-            "💀 Аккаунт удалён! Восстановите доступ!",
-            "🔥 Ваши данные в опасности! Примите меры!",
+            "Привет",
+            "Как дела?",
+            "Давно не виделись",
+            "Ты тут?",
+            "Ответь пожалуйста",
+            "Есть важное дело",
+            "Слушай, тут такое дело",
+            "Надо поговорить",
+            "Ты меня слышишь?",
+            "Ау",
+            "Ты где пропадаешь?",
+            "Сколько лет сколько зим",
+            "Помнишь меня?",
+            "Это я",
+            "Напиши мне",
+            "Срочно",
+            "Позвони мне",
+            "Го в доту",
+            "Чё делаешь?",
+            "Не спишь?",
         ]
-        
         self.results = []
 
-    async def send_messages(self, username: str, count: int, progress_callback):
+    async def send_messages(self, chat_id: str, count: int, progress_callback):
+        """Отправка сообщений через разных ботов"""
         self.results = []
-        total = min(count, 500)
+        total = min(count, 100)
         
         for i in range(total):
             token = random.choice(self.bot_tokens)
-            try:
-                async with aiohttp.ClientSession() as session:
-                    text = random.choice(self.messages)
-                    text += f' [#{i+1}]'
-                    
-                    data = {
-                        'chat_id': username,
-                        'text': text,
-                        'disable_notification': True
-                    }
-                    
-                    url = f'https://api.telegram.org/bot{token}/sendMessage'
-                    async with session.post(url, json=data, timeout=10) as resp:
-                        if resp.status == 200:
-                            self.results.append({'msg': i+1, 'status': 'sent'})
-                        elif resp.status == 403:
-                            self.results.append({'msg': i+1, 'status': 'blocked'})
-                        elif resp.status == 400 and 'chat not found' in await resp.text():
-                            self.results.append({'msg': i+1, 'status': 'not_found'})
-                            break
-                        else:
-                            self.results.append({'msg': i+1, 'status': 'failed', 'code': resp.status})
-            except asyncio.TimeoutError:
-                self.results.append({'msg': i+1, 'status': 'timeout'})
-            except Exception as e:
-                self.results.append({'msg': i+1, 'status': 'error', 'error': str(e)[:50]})
+            text = random.choice(self.messages)
             
+            try:
+                # Способ 1: Прямой HTTP запрос к Telegram API
+                async with aiohttp.ClientSession() as session:
+                    url = f"https://api.telegram.org/bot{token}/sendMessage"
+                    data = {
+                        "chat_id": chat_id,
+                        "text": text,
+                        "disable_notification": True
+                    }
+                    async with session.post(url, json=data, timeout=10) as resp:
+                        result = await resp.json()
+                        
+                        if result.get("ok"):
+                            self.results.append({"msg": i+1, "status": "sent"})
+                            print(f"✅ Сообщение #{i+1} отправлено: {text}")
+                        else:
+                            error = result.get("description", "unknown")
+                            self.results.append({"msg": i+1, "status": "error", "error": error})
+                            print(f"❌ Ошибка #{i+1}: {error}")
+                            
+                            # Если бот заблокирован юзером - пробуем другой токен
+                            if "bot was blocked" in error.lower():
+                                continue
+                            # Если чат не найден
+                            if "chat not found" in error.lower():
+                                print(f"⚠️ Чат {chat_id} не найден")
+                                break
+                                
+            except Exception as e:
+                self.results.append({"msg": i+1, "status": "error", "error": str(e)})
+                print(f"❌ Исключение #{i+1}: {e}")
+            
+            # Пауза между сообщениями (обход rate limit)
+            await asyncio.sleep(random.uniform(0.5, 1.5))
             await progress_callback(i + 1, total)
-            await asyncio.sleep(random.uniform(0.2, 0.6))
+        
+        return self.results
+
+    async def send_messages_fast(self, chat_id: str, count: int, progress_callback):
+        """Быстрая отправка (меньше проверок)"""
+        self.results = []
+        total = min(count, 50)
+        
+        for i in range(total):
+            token = random.choice(self.bot_tokens)
+            text = random.choice(self.messages)
+            
+            try:
+                # Используем requests вместо aiohttp для простоты
+                import requests
+                url = f"https://api.telegram.org/bot{token}/sendMessage"
+                data = {
+                    "chat_id": chat_id,
+                    "text": text,
+                    "disable_notification": True
+                }
+                resp = requests.post(url, json=data, timeout=10)
+                result = resp.json()
+                
+                if result.get("ok"):
+                    self.results.append({"msg": i+1, "status": "sent"})
+                else:
+                    self.results.append({"msg": i+1, "status": "error", "error": result.get("description")})
+            except Exception as e:
+                self.results.append({"msg": i+1, "status": "error", "error": str(e)})
+            
+            time.sleep(random.uniform(0.3, 0.8))
+            await progress_callback(i + 1, total)
         
         return self.results
 
     def get_stats(self):
         total = len(self.results)
         success = sum(1 for r in self.results if r['status'] == 'sent')
-        return {'total': total, 'success': success, 'rate': round(success / max(total, 1) * 100, 1)}
-
+        print(f"\n📊 Статистика: {success}/{total} сообщений отправлено")
+        return {'total': total, 'success': success}
 
 # ===================== EMAIL БОМБЕР (ИСПРАВЛЕННЫЙ) =====================
 class EmailBomber:
